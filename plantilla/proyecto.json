@@ -1,0 +1,148 @@
+{
+  "$schema": "../../esquema/proyecto.schema.json",
+  "version_esquema": 1,
+  "id": "mi-nuevo-proyecto",
+  "estado": "abierto",
+  "fecha_limite": "2027-01-15",
+  "actualizado": "2027-01-05",
+  "institucion": {
+    "nombre": "Nombre de la universidad",
+    "siglas": "SIGLAS",
+    "unidad": "Facultad",
+    "programa": "Programa académico",
+    "ciudad": "Lima",
+    "logo": "logo.jpg"
+  },
+  "tema": { "acento": "#1f4e8c" },
+  "investigacion": {
+    "tipo": "Tesis para optar el título profesional de …",
+    "titulo": "Título completo de la investigación",
+    "autor": "Nombres y apellidos del investigador",
+    "asesor": "Nombres y apellidos del asesor",
+    "enfoque": "Cuantitativo, no experimental, transversal"
+  },
+  "contacto": {
+    "nombre": "Nombres y apellidos del investigador",
+    "whatsapp": "51999999999",
+    "correo": "correo@ejemplo.com"
+  },
+  "carta": {
+    "asunto": "VALIDACIÓN DE INSTRUMENTOS A TRAVÉS DE JUICIO DE EXPERTO",
+    "parrafos": [
+      "Es muy grato comunicarme con usted para expresarle mi saludo y solicitar su apoyo en la validación del instrumento de mi investigación.",
+      "El título de mi proyecto es: *\"Título completo de la investigación\"*, y por su experiencia en temas de {area}, he considerado conveniente recurrir a usted."
+    ],
+    "contenido_titulo": "El expediente de validación que le hago llegar contiene:",
+    "contenido": [
+      "Carta de presentación",
+      "Definiciones conceptuales de las variables y dimensiones",
+      "Matriz de operacionalización de las variables",
+      "Certificado de validez de contenido del instrumento"
+    ],
+    "cierre": "Agradezco de antemano la atención que dispense a la presente.",
+    "firma": "Nombres y apellidos del investigador"
+  },
+  "documentos": [
+    {
+      "titulo": "Expediente de validación (PDF)",
+      "descripcion": "Carta, definiciones, matriz y certificado en blanco.",
+      "archivo": "expedientes/expediente_{clave}.pdf",
+      "archivo_general": "expedientes/expediente.pdf"
+    }
+  ],
+  "evaluacion": {
+    "minutos": 10,
+    "criterios": [
+      { "clave": "p", "nombre": "Pertinencia", "definicion": "el ítem corresponde al concepto teórico formulado." },
+      { "clave": "r", "nombre": "Relevancia", "definicion": "el ítem es apropiado para representar al componente o dimensión específica del constructo." },
+      { "clave": "c", "nombre": "Claridad", "definicion": "se entiende sin dificultad alguna el enunciado del ítem; es conciso, exacto y directo." }
+    ],
+    "escala": [
+      { "valor": 1, "etiqueta": "Sí" },
+      { "valor": 0, "etiqueta": "No" }
+    ],
+    "suficiencia": {
+      "activa": true,
+      "definicion": "se dice que hay suficiencia cuando los ítems planteados son suficientes para medir la dimensión."
+    },
+    "aplicabilidad": ["Aplicable", "Aplicable después de corregir", "No aplicable"],
+    "grados": [
+      { "valor": "Mg.", "etiqueta": "Magíster (Mg.)" },
+      { "valor": "Dr.", "etiqueta": "Doctor (Dr.)" }
+    ],
+    "documento_identidad": { "nombre": "DNI", "patron": "^[0-9A-Za-z]{8,12}$" }
+  },
+  "variables": [
+    {
+      "numero": 1,
+      "nombre": "Nombre de la variable",
+      "definicion": "Definición conceptual con su cita (Autor, año).",
+      "escala": "Ordinal: escala de Likert de 1 a 5",
+      "niveles": ["Variable (4–20): bajo 4–9, medio 10–14, alto 15–20"],
+      "dimensiones": [
+        {
+          "numero": 1,
+          "nombre": "Primera dimensión",
+          "definicion": "Definición de la dimensión (ítems 1 al 2).",
+          "indicadores": [{ "nombre": "Indicador A", "items": [1, 2] }],
+          "items": [
+            { "numero": 1, "texto": "Primer ítem del cuestionario." },
+            { "numero": 2, "texto": "Segundo ítem del cuestionario." }
+          ]
+        },
+        {
+          "numero": 2,
+          "nombre": "Segunda dimensión",
+          "definicion": "Definición de la dimensión (ítems 3 al 4).",
+          "indicadores": [{ "nombre": "Indicador B", "items": [3, 4] }],
+          "items": [
+            { "numero": 3, "texto": "Tercer ítem del cuestionario." },
+            { "numero": 4, "texto": "Cuarto ítem del cuestionario." }
+          ]
+        }
+      ]
+    }
+  ],
+  "nota_matriz": "Escala de Likert: 1 = Totalmente en desacuerdo … 5 = Totalmente de acuerdo. Elaboración propia.",
+  "cuestionario": {
+    "titulo": "CUESTIONARIO SOBRE …",
+    "presentacion": "Texto de presentación que leerán los participantes.",
+    "notas": [],
+    "bloques": [
+      {
+        "titulo": "I. Datos generales",
+        "tipo": "opciones",
+        "preguntas": [{ "texto": "Sexo", "opciones": ["Masculino", "Femenino", "Prefiero no responder"] }]
+      },
+      {
+        "titulo": "II. Variable 1",
+        "tipo": "escala",
+        "instrucciones": "Marque con un aspa (X) su grado de acuerdo.",
+        "escala": ["1 = Totalmente en desacuerdo", "2 = En desacuerdo", "3 = Neutral", "4 = De acuerdo", "5 = Totalmente de acuerdo"],
+        "grupos": [
+          { "titulo": "Dimensión 1: Primera dimensión", "items": [{ "numero": 1, "texto": "Primer ítem del cuestionario." }, { "numero": 2, "texto": "Segundo ítem del cuestionario." }] },
+          { "titulo": "Dimensión 2: Segunda dimensión", "items": [{ "numero": 3, "texto": "Tercer ítem del cuestionario." }, { "numero": 4, "texto": "Cuarto ítem del cuestionario." }] }
+        ]
+      }
+    ],
+    "cierre": "¡Gracias por su participación!"
+  },
+  "certificado": {
+    "titulo": "CERTIFICADO DE VALIDEZ DE CONTENIDO DEL INSTRUMENTO",
+    "nota": "Suficiencia: se dice que hay suficiencia cuando los ítems planteados son suficientes para medir la dimensión.",
+    "etiqueta_observaciones": "Observaciones (precisar si hay suficiencia):",
+    "etiqueta_juez": "Apellidos y nombres del juez validador (Dr./Mg.):",
+    "etiqueta_firma": "Firma del experto informante"
+  },
+  "expertos": [
+    {
+      "clave": "apellido",
+      "grado": "Mg.",
+      "nombre": "Nombres y apellidos del experto",
+      "tratamiento": "Estimado",
+      "rol": "Metodólogo",
+      "area": "metodología de la investigación",
+      "especialidad": "Metodología de la investigación"
+    }
+  ]
+}

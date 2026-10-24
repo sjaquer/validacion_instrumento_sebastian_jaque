@@ -1,0 +1,11 @@
+# Certificados firmados y resultados: contienen datos de los expertos, no se publican.
+firmadas/
+resultados/
+*.firmado.pdf
+Certificado_Validez_*.pdf
+
+node_modules/
+__pycache__/
+.DS_Store
+.vscode/
+.idea/

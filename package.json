@@ -1,0 +1,11 @@
+{
+  "name": "validacion-instrumento-sebastian-jaque",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Validación de contenido de instrumentos de investigación por juicio de expertos (sitio estático para GitHub Pages).",
+  "scripts": {
+    "servir": "python3 -m http.server 8000",
+    "validar": "python3 herramientas/validar_proyecto.py && for f in assets/js/*.js; do node --check \"$f\"; done"
+  }
+}

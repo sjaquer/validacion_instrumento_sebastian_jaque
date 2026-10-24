@@ -1,0 +1,24 @@
+name: Validar proyectos
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Proyectos (proyecto.json e índice)
+        run: python3 herramientas/validar_proyecto.py
+      - name: Plantilla
+        run: python3 -c "import json; json.load(open('plantilla/proyecto.json', encoding='utf-8'))"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Sintaxis de los módulos JavaScript
+        run: for f in assets/js/*.js; do node --check "$f"; done

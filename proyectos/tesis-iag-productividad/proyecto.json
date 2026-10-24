@@ -1,0 +1,629 @@
+{
+  "$schema": "../../esquema/proyecto.schema.json",
+  "version_esquema": 1,
+  "id": "tesis-iag-productividad",
+  "estado": "abierto",
+  "fecha_limite": "2026-10-30",
+  "actualizado": "2026-10-23",
+  "institucion": {
+    "nombre": "Universidad Privada Norbert Wiener",
+    "siglas": "UPNW",
+    "unidad": "Facultad de Negocios",
+    "programa": "Administración y Negocios Internacionales",
+    "ciudad": "Lima",
+    "logo": "logo.jpg"
+  },
+  "tema": {
+    "acento": "#8c1d40"
+  },
+  "investigacion": {
+    "tipo": "Tesis para optar el Título Profesional de Licenciado en Administración y Negocios Internacionales",
+    "autor": "Sebastián Emiliano Jaque Reategui",
+    "asesor": "Braggi Alfredo Bamberger Vargas",
+    "linea": "Gestión estratégica para el desarrollo económico y organizacional sostenible",
+    "enfoque": "Cuantitativo, no experimental, transversal, correlacional-causal",
+    "instrumento": "Cuestionario de 24 ítems con escala de Likert de 5 opciones",
+    "titulo": "Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026"
+  },
+  "contacto": {
+    "nombre": "Sebastián Emiliano Jaque Reategui",
+    "whatsapp": "51946978919",
+    "correo": "sjaquer@outlook.es"
+  },
+  "carta": {
+    "asunto": "VALIDACIÓN DE INSTRUMENTOS A TRAVÉS DE JUICIO DE EXPERTO",
+    "parrafos": [
+      "Es muy grato comunicarme con usted para expresarle mi saludo y, asimismo, hacer de su conocimiento que, siendo estudiante del Programa Académico de Administración y Negocios Internacionales de la Universidad Privada Norbert Wiener, requiero validar el instrumento con el cual recogeré la información necesaria para desarrollar mi investigación, con la cual optaré el Título Profesional de Licenciado en Administración y Negocios Internacionales.",
+      "El título de mi proyecto de investigación es: *\"Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026\"*, y siendo imprescindible contar con la aprobación de docentes especializados para aplicar el instrumento en mención, he considerado conveniente recurrir a usted, ante su connotada experiencia en temas de {area}."
+    ],
+    "contenido_titulo": "El expediente de validación que le hago llegar contiene:",
+    "contenido": [
+      "Carta de presentación",
+      "Definiciones conceptuales de las variables y dimensiones",
+      "Matriz de operacionalización de las variables",
+      "Certificado de validez de contenido del instrumento"
+    ],
+    "cierre": "Expresándole los sentimientos de respeto y consideración, me despido de usted, no sin antes agradecer por la atención que dispense a la presente.",
+    "firma": "Sebastián Emiliano Jaque Reategui"
+  },
+  "documentos": [
+    {
+      "titulo": "Expediente de validación (PDF)",
+      "descripcion": "Carta de presentación, definiciones, matriz de operacionalización y certificado en blanco.",
+      "archivo": "expedientes/expediente_{clave}.pdf",
+      "archivo_general": "expedientes/expediente.pdf"
+    }
+  ],
+  "evaluacion": {
+    "minutos": 15,
+    "criterios": [
+      {
+        "clave": "p",
+        "nombre": "Pertinencia",
+        "definicion": "el ítem corresponde al concepto teórico formulado."
+      },
+      {
+        "clave": "r",
+        "nombre": "Relevancia",
+        "definicion": "el ítem es apropiado para representar al componente o dimensión específica del constructo."
+      },
+      {
+        "clave": "c",
+        "nombre": "Claridad",
+        "definicion": "se entiende sin dificultad alguna el enunciado del ítem; es conciso, exacto y directo."
+      }
+    ],
+    "escala": [
+      {
+        "valor": 1,
+        "etiqueta": "Sí"
+      },
+      {
+        "valor": 0,
+        "etiqueta": "No"
+      }
+    ],
+    "suficiencia": {
+      "activa": true,
+      "definicion": "se dice que hay suficiencia cuando los ítems planteados son suficientes para medir la dimensión."
+    },
+    "aplicabilidad": [
+      "Aplicable",
+      "Aplicable después de corregir",
+      "No aplicable"
+    ],
+    "grados": [
+      {
+        "valor": "Mg.",
+        "etiqueta": "Magíster (Mg.)"
+      },
+      {
+        "valor": "Dr.",
+        "etiqueta": "Doctor (Dr.)"
+      }
+    ],
+    "documento_identidad": {
+      "nombre": "DNI",
+      "patron": "^[0-9A-Za-z]{8,12}$"
+    }
+  },
+  "variables": [
+    {
+      "numero": 1,
+      "nombre": "Inteligencia artificial generativa",
+      "definicion": "Rama de la inteligencia artificial capaz de crear contenido nuevo (textos, imágenes, código) a partir de instrucciones en lenguaje natural, cuyo aprovechamiento depende de la frecuencia con que se usa y de las competencias del usuario (Liu et al., 2025; Zhang et al., 2026). Se mide con 12 ítems.",
+      "escala": "Ordinal: escala de frecuencia de 1 a 5",
+      "niveles": [
+        "Variable (12–60): bajo 12–27, medio 28–43, alto 44–60",
+        "Dimensión (6–30): bajo 6–13, medio 14–21, alto 22–30"
+      ],
+      "dimensiones": [
+        {
+          "numero": 1,
+          "nombre": "Frecuencia de uso",
+          "definicion": "Regularidad, intensidad y variedad de tareas en las que el colaborador utiliza herramientas de IAG durante su jornada laboral (ítems 1 al 6).",
+          "indicadores": [
+            {
+              "nombre": "Regularidad de uso",
+              "items": [
+                1,
+                2
+              ]
+            },
+            {
+              "nombre": "Intensidad de uso en la jornada",
+              "items": [
+                3,
+                4
+              ]
+            },
+            {
+              "nombre": "Variedad de tareas en las que se usa",
+              "items": [
+                5,
+                6
+              ]
+            }
+          ],
+          "items": [
+            {
+              "numero": 1,
+              "texto": "Utilizo herramientas de IA generativa durante mi jornada laboral."
+            },
+            {
+              "numero": 2,
+              "texto": "Uso la IA generativa de manera constante a lo largo de la semana de trabajo."
+            },
+            {
+              "numero": 3,
+              "texto": "Dedico una parte importante de mi jornada a trabajar con herramientas de IA generativa."
+            },
+            {
+              "numero": 4,
+              "texto": "Recurro a la IA generativa en las distintas etapas de un mismo proyecto (ideación, producción y revisión)."
+            },
+            {
+              "numero": 5,
+              "texto": "Uso la IA generativa para redactar contenidos (copys, guiones, correos o informes)."
+            },
+            {
+              "numero": 6,
+              "texto": "Uso la IA generativa para tareas visuales, de análisis de datos o de planificación de campañas."
+            }
+          ]
+        },
+        {
+          "numero": 2,
+          "nombre": "Nivel de dominio técnico",
+          "definicion": "Capacidad del colaborador para redactar y refinar prompts, evaluar críticamente el contenido generado e integrar herramientas de IAG a su trabajo (ítems 7 al 12).",
+          "indicadores": [
+            {
+              "nombre": "Ingeniería de prompts",
+              "items": [
+                7,
+                8
+              ]
+            },
+            {
+              "nombre": "Evaluación crítica del contenido",
+              "items": [
+                9,
+                10
+              ]
+            },
+            {
+              "nombre": "Integración y adaptación de herramientas",
+              "items": [
+                11,
+                12
+              ]
+            }
+          ],
+          "items": [
+            {
+              "numero": 7,
+              "texto": "Redacto prompts que incluyen el contexto, el objetivo, el público y el formato de respuesta que necesito."
+            },
+            {
+              "numero": 8,
+              "texto": "Cuando la respuesta de la IA no es la esperada, reformulo el prompt hasta obtener un resultado útil."
+            },
+            {
+              "numero": 9,
+              "texto": "Verifico la exactitud de los datos y afirmaciones que genera la IA antes de usarlos en mi trabajo."
+            },
+            {
+              "numero": 10,
+              "texto": "Identifico errores, sesgos o información inventada en las respuestas de la IA."
+            },
+            {
+              "numero": 11,
+              "texto": "Combino distintas herramientas de IA generativa para completar una misma tarea o campaña."
+            },
+            {
+              "numero": 12,
+              "texto": "Adapto el contenido generado por la IA al tono y a la identidad de marca del cliente."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "numero": 2,
+      "nombre": "Productividad laboral",
+      "definicion": "Relación entre los resultados del trabajo y los recursos empleados para obtenerlos, considerando tanto la rapidez como la calidad del resultado (Drucker, 1999; Dessler y Varela, 2011). Se mide con 12 ítems.",
+      "escala": "Ordinal: escala de acuerdo de 1 a 5",
+      "niveles": [
+        "Variable (12–60): bajo 12–27, medio 28–43, alto 44–60",
+        "Dimensión (6–30): bajo 6–13, medio 14–21, alto 22–30"
+      ],
+      "dimensiones": [
+        {
+          "numero": 3,
+          "nombre": "Eficiencia operativa",
+          "definicion": "Capacidad del colaborador para ejecutar sus tareas en menos tiempo, cumplir los plazos y reducir los reprocesos (ítems 13 al 18).",
+          "indicadores": [
+            {
+              "nombre": "Tiempo de ejecución",
+              "items": [
+                13,
+                14
+              ]
+            },
+            {
+              "nombre": "Cumplimiento de plazos",
+              "items": [
+                15,
+                16
+              ]
+            },
+            {
+              "nombre": "Volumen de producción y reprocesos",
+              "items": [
+                17,
+                18
+              ]
+            }
+          ],
+          "items": [
+            {
+              "numero": 13,
+              "texto": "Termino mis tareas habituales en un tiempo menor al que tengo planificado."
+            },
+            {
+              "numero": 14,
+              "texto": "Dedico poco tiempo a tareas repetitivas, lo que me permite enfocarme en tareas de mayor valor."
+            },
+            {
+              "numero": 15,
+              "texto": "Entrego mis trabajos dentro de los plazos establecidos por mi jefe o cliente."
+            },
+            {
+              "numero": 16,
+              "texto": "Respondo con rapidez a solicitudes urgentes o cambios de último momento."
+            },
+            {
+              "numero": 17,
+              "texto": "La cantidad de entregables que produzco por semana supera lo que se espera de mi puesto."
+            },
+            {
+              "numero": 18,
+              "texto": "Mis trabajos requieren pocas rondas de corrección antes de ser aprobados."
+            }
+          ]
+        },
+        {
+          "numero": 4,
+          "nombre": "Calidad de los entregables",
+          "definicion": "Grado en que los productos del trabajo son precisos, originales, cumplen los requerimientos del cliente y obtienen su aprobación (ítems 19 al 24).",
+          "indicadores": [
+            {
+              "nombre": "Precisión y cumplimiento del brief",
+              "items": [
+                19,
+                20
+              ]
+            },
+            {
+              "nombre": "Creatividad y valor aportado",
+              "items": [
+                21,
+                22
+              ]
+            },
+            {
+              "nombre": "Satisfacción del supervisor y del cliente",
+              "items": [
+                23,
+                24
+              ]
+            }
+          ],
+          "items": [
+            {
+              "numero": 19,
+              "texto": "Mis entregables presentan pocos errores ortográficos, de datos o de formato."
+            },
+            {
+              "numero": 20,
+              "texto": "Mis trabajos cumplen con los requerimientos del brief del cliente."
+            },
+            {
+              "numero": 21,
+              "texto": "Las propuestas que elaboro son creativas y originales."
+            },
+            {
+              "numero": 22,
+              "texto": "Mis entregables aportan valor estratégico a los objetivos del cliente."
+            },
+            {
+              "numero": 23,
+              "texto": "Mi jefe o supervisor está satisfecho con la calidad de mi trabajo."
+            },
+            {
+              "numero": 24,
+              "texto": "Recibo comentarios positivos de los clientes sobre los trabajos que entrego."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nota_matriz": "Escala de frecuencia: 1 = Nunca, 2 = Casi nunca, 3 = A veces, 4 = Casi siempre, 5 = Siempre. Escala de acuerdo: 1 = Totalmente en desacuerdo, 2 = En desacuerdo, 3 = Ni de acuerdo ni en desacuerdo, 4 = De acuerdo, 5 = Totalmente de acuerdo. Los rangos se obtuvieron dividiendo la amplitud de cada escala en tres intervalos iguales. Elaboración propia.",
+  "cuestionario": {
+    "titulo": "CUESTIONARIO SOBRE INTELIGENCIA ARTIFICIAL GENERATIVA Y PRODUCTIVIDAD LABORAL",
+    "presentacion": "Estimado(a) colaborador(a), el presente cuestionario forma parte de una investigación académica de la Universidad Privada Norbert Wiener. Sus respuestas son confidenciales, se registran con un código y serán utilizadas únicamente con fines académicos. No existen respuestas correctas ni incorrectas; le pedimos responder con sinceridad según su experiencia laboral actual. Tiempo estimado: 10 minutos.",
+    "notas": [
+      "**Sección previa:** el formulario digital inicia con el consentimiento informado (Anexo 6); solo quienes lo aceptan continúan con el cuestionario."
+    ],
+    "bloques": [
+      {
+        "titulo": "Pregunta filtro",
+        "tipo": "opciones",
+        "preguntas": [
+          {
+            "texto": "¿Utiliza herramientas de inteligencia artificial generativa (por ejemplo, ChatGPT, Gemini, Claude, Copilot, Midjourney o similares) en su trabajo?",
+            "opciones": [
+              "Sí → continúe con el cuestionario",
+              "No → gracias por su tiempo, aquí termina el cuestionario"
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "I. Datos generales",
+        "tipo": "opciones",
+        "preguntas": [
+          {
+            "texto": "Sexo",
+            "opciones": [
+              "Masculino",
+              "Femenino",
+              "Prefiero no responder"
+            ]
+          },
+          {
+            "texto": "Edad",
+            "opciones": [
+              "18–25 años",
+              "26–35 años",
+              "36–45 años",
+              "46 años a más"
+            ]
+          },
+          {
+            "texto": "Área en la que trabaja",
+            "opciones": [
+              "Redacción / copywriting",
+              "Diseño gráfico / audiovisual",
+              "Community management / redes sociales",
+              "Pauta digital / performance",
+              "Estrategia / cuentas",
+              "Otra: ________"
+            ]
+          },
+          {
+            "texto": "Años de experiencia en marketing",
+            "opciones": [
+              "Menos de 1 año",
+              "1–3 años",
+              "4–6 años",
+              "Más de 6 años"
+            ]
+          },
+          {
+            "texto": "Número de trabajadores de su agencia",
+            "opciones": [
+              "1–10",
+              "11–50",
+              "51–100",
+              "Más de 100"
+            ]
+          },
+          {
+            "texto": "Herramientas de IA generativa que utiliza",
+            "opciones": [
+              "ChatGPT",
+              "Gemini",
+              "Claude",
+              "Copilot",
+              "Midjourney / DALL·E / Firefly",
+              "Canva IA",
+              "Otra: ________"
+            ],
+            "nota": "puede marcar varias"
+          },
+          {
+            "texto": "¿Ha recibido capacitación formal sobre el uso de IA generativa?",
+            "opciones": [
+              "Sí, por parte de mi empresa",
+              "Sí, por cuenta propia",
+              "No"
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "II. Variable 1: Inteligencia artificial generativa",
+        "tipo": "escala",
+        "instrucciones": "Marque con un aspa (X) la frecuencia con que realiza cada acción.",
+        "escala": [
+          "1 = Nunca",
+          "2 = Casi nunca",
+          "3 = A veces",
+          "4 = Casi siempre",
+          "5 = Siempre"
+        ],
+        "grupos": [
+          {
+            "titulo": "Dimensión 1: Frecuencia de uso",
+            "items": [
+              {
+                "numero": 1,
+                "texto": "Utilizo herramientas de IA generativa durante mi jornada laboral."
+              },
+              {
+                "numero": 2,
+                "texto": "Uso la IA generativa de manera constante a lo largo de la semana de trabajo."
+              },
+              {
+                "numero": 3,
+                "texto": "Dedico una parte importante de mi jornada a trabajar con herramientas de IA generativa."
+              },
+              {
+                "numero": 4,
+                "texto": "Recurro a la IA generativa en las distintas etapas de un mismo proyecto (ideación, producción y revisión)."
+              },
+              {
+                "numero": 5,
+                "texto": "Uso la IA generativa para redactar contenidos (copys, guiones, correos o informes)."
+              },
+              {
+                "numero": 6,
+                "texto": "Uso la IA generativa para tareas visuales, de análisis de datos o de planificación de campañas."
+              }
+            ]
+          },
+          {
+            "titulo": "Dimensión 2: Nivel de dominio técnico",
+            "items": [
+              {
+                "numero": 7,
+                "texto": "Redacto prompts que incluyen el contexto, el objetivo, el público y el formato de respuesta que necesito."
+              },
+              {
+                "numero": 8,
+                "texto": "Cuando la respuesta de la IA no es la esperada, reformulo el prompt hasta obtener un resultado útil."
+              },
+              {
+                "numero": 9,
+                "texto": "Verifico la exactitud de los datos y afirmaciones que genera la IA antes de usarlos en mi trabajo."
+              },
+              {
+                "numero": 10,
+                "texto": "Identifico errores, sesgos o información inventada en las respuestas de la IA."
+              },
+              {
+                "numero": 11,
+                "texto": "Combino distintas herramientas de IA generativa para completar una misma tarea o campaña."
+              },
+              {
+                "numero": 12,
+                "texto": "Adapto el contenido generado por la IA al tono y a la identidad de marca del cliente."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "titulo": "III. Variable 2: Productividad laboral",
+        "tipo": "escala",
+        "instrucciones": "Marque con un aspa (X) su grado de acuerdo con cada afirmación sobre su desempeño laboral en los últimos tres meses.",
+        "escala": [
+          "1 = Totalmente en desacuerdo",
+          "2 = En desacuerdo",
+          "3 = Ni de acuerdo ni en desacuerdo",
+          "4 = De acuerdo",
+          "5 = Totalmente de acuerdo"
+        ],
+        "grupos": [
+          {
+            "titulo": "Dimensión 3: Eficiencia operativa",
+            "items": [
+              {
+                "numero": 13,
+                "texto": "Termino mis tareas habituales en un tiempo menor al que tengo planificado."
+              },
+              {
+                "numero": 14,
+                "texto": "Dedico poco tiempo a tareas repetitivas, lo que me permite enfocarme en tareas de mayor valor."
+              },
+              {
+                "numero": 15,
+                "texto": "Entrego mis trabajos dentro de los plazos establecidos por mi jefe o cliente."
+              },
+              {
+                "numero": 16,
+                "texto": "Respondo con rapidez a solicitudes urgentes o cambios de último momento."
+              },
+              {
+                "numero": 17,
+                "texto": "La cantidad de entregables que produzco por semana supera lo que se espera de mi puesto."
+              },
+              {
+                "numero": 18,
+                "texto": "Mis trabajos requieren pocas rondas de corrección antes de ser aprobados."
+              }
+            ]
+          },
+          {
+            "titulo": "Dimensión 4: Calidad de los entregables",
+            "items": [
+              {
+                "numero": 19,
+                "texto": "Mis entregables presentan pocos errores ortográficos, de datos o de formato."
+              },
+              {
+                "numero": 20,
+                "texto": "Mis trabajos cumplen con los requerimientos del brief del cliente."
+              },
+              {
+                "numero": 21,
+                "texto": "Las propuestas que elaboro son creativas y originales."
+              },
+              {
+                "numero": 22,
+                "texto": "Mis entregables aportan valor estratégico a los objetivos del cliente."
+              },
+              {
+                "numero": 23,
+                "texto": "Mi jefe o supervisor está satisfecho con la calidad de mi trabajo."
+              },
+              {
+                "numero": 24,
+                "texto": "Recibo comentarios positivos de los clientes sobre los trabajos que entrego."
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "cierre": "¡Gracias por su participación!"
+  },
+  "certificado": {
+    "titulo": "CERTIFICADO DE VALIDEZ DE CONTENIDO DEL INSTRUMENTO",
+    "nota": "Suficiencia: se dice que hay suficiencia cuando los ítems planteados son suficientes para medir la dimensión.",
+    "etiqueta_observaciones": "Observaciones (precisar si hay suficiencia):",
+    "etiqueta_juez": "Apellidos y nombres del juez validador (Dr./Mg.):",
+    "etiqueta_firma": "Firma del experto informante"
+  },
+  "expertos": [
+    {
+      "clave": "vidaurrazaga",
+      "grado": "Mg.",
+      "nombre": "Sandro Antonio Vidaurrázaga Sferrazza",
+      "tratamiento": "Estimado",
+      "rol": "Metodólogo",
+      "area": "investigación de mercados y métodos cuantitativos",
+      "especialidad": "Investigación de mercados y métodos cuantitativos"
+    },
+    {
+      "clave": "pinedo",
+      "grado": "Mg.",
+      "nombre": "Lloy Pinedo",
+      "tratamiento": "Estimado",
+      "rol": "Experto en TI e inteligencia artificial",
+      "area": "tecnologías de la información e inteligencia artificial",
+      "especialidad": "Tecnologías de la información e inteligencia artificial"
+    },
+    {
+      "clave": "cardenas",
+      "grado": "Mg.",
+      "nombre": "Ivette Cárdenas Marquina",
+      "tratamiento": "Estimada",
+      "rol": "Experta en talento humano y marketing",
+      "area": "gestión del talento humano y marketing",
+      "especialidad": "Gestión del talento humano y marketing"
+    }
+  ]
+}
