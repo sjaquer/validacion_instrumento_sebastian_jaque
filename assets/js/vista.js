@@ -17,46 +17,59 @@ export function portada(p, experto) {
   const meta = [
     ["Investigador", inv.autor],
     ["Asesor", inv.asesor],
-    ["Programa", p.institucion?.programa],
-    ["Enfoque", inv.enfoque],
+    ["Programa académico", p.institucion?.programa],
+    ["Línea de investigación", inv.linea],
+    ["Enfoque metodológico", inv.enfoque],
+    ["Tipo de instrumento", inv.instrumento],
   ].filter(([, v]) => v);
 
-  const cifras = [
-    [p.items.length, "ítems"],
-    [p.dimensiones.length, p.dimensiones.length === 1 ? "dimensión" : "dimensiones"],
-    [ev.criterios.length, "criterios"],
-    [`~${ev.minutos}`, "minutos"],
+  const destacados = [
+    { icono: "clock", titulo: `~${ev.minutos} min`, desc: "Tiempo estimado" },
+    { icono: "file", titulo: `${p.items.length} ítems`, desc: "Marque Sí o No" },
+    { icono: "shield", titulo: "Autoguardado", desc: "No pierde su avance" },
+    { icono: "sign", titulo: "Firma digital", desc: "Certificado en PDF" },
   ];
 
-  const texto = el("div", { clase: "portada__texto" }, [
-    el("p", { clase: "sobretitulo", texto: "Validación de contenido · Juicio de expertos" }),
-    el("h1", { clase: "portada__titulo", id: "titulo-portada", texto: plano(inv.titulo) }),
-    inv.tipo ? el("p", { clase: "portada__tipo", texto: `${inv.tipo}${p.institucion?.nombre ? ` · ${p.institucion.nombre}` : ""}` }) : null,
+  const detallesAcademicos = el("details", { clase: "meta-caja" }, [
+    el("summary", {}, [
+      el("span", { texto: "📋 Ver información académica del proyecto de tesis" }),
+      icono("chevron"),
+    ]),
     el("dl", { clase: "meta" }, meta.map(([k, v]) => el("div", {}, [el("dt", { texto: k }), el("dd", { texto: v })]))),
-    el("div", { clase: "cifras" }, cifras.map(([n, t]) => el("div", { clase: "cifra" }, [el("strong", { texto: String(n) }), el("span", { texto: t })]))),
+  ]);
+
+  const texto = el("div", { clase: "portada__texto" }, [
+    el("p", { clase: "sobretitulo", texto: "Validación por Juicio de Expertos" }),
+    el("h1", { clase: "portada__titulo", id: "titulo-portada", texto: plano(inv.titulo) }),
+    el("p", { clase: "portada__tipo", texto: "Agradecemos su valiosa colaboración académica evaluando la pertinencia, relevancia y claridad de los ítems de este instrumento." }),
+    detallesAcademicos,
+    el("div", { clase: "destacados-evaluacion" }, destacados.map(d => el("div", { clase: "destacado-pildora" }, [
+      icono(d.icono),
+      el("div", {}, [el("strong", { texto: d.titulo }), el("span", { texto: d.desc })]),
+    ]))),
   ]);
 
   const limite = fechaIso(p.fecha_limite);
   const lista = [
-    el("li", {}, [icono("clock"), el("span", { texto: `Toma alrededor de ${ev.minutos} minutos y puede hacerlo desde el celular o la computadora.` })]),
-    limite ? el("li", {}, [icono("calendar"), el("span", { html: `Fecha sugerida de entrega: <strong>${fechaLarga(limite)}</strong>.` })]) : null,
-    el("li", {}, [icono("shield"), el("span", { texto: "Su avance se guarda solo en este dispositivo; puede continuar después." })]),
+    el("li", {}, [icono("clock"), el("span", { texto: `Evaluación rápida de 24 preguntas breves. Puede responder desde su celular, tablet o computadora.` })]),
+    limite ? el("li", {}, [icono("calendar"), el("span", { html: `Fecha sugerida de respuesta: <strong>${fechaLarga(limite)}</strong>.` })]) : null,
+    el("li", {}, [icono("shield"), el("span", { texto: "Sus respuestas se guardan automáticamente en este navegador; puede pausar y retomar cuando desee." })]),
   ];
   const docPrincipal = p.documentos.map(d => ({ ...d, url: archivoDocumento(d, experto) })).find(d => d.url);
 
-  const invitacion = el("aside", { clase: "invitacion tarjeta", "aria-label": "Invitación" }, [
+  const invitacion = el("aside", { clase: "invitacion tarjeta", "aria-label": "Invitación personal" }, [
     el("p", { clase: "sobretitulo", texto: experto ? "Invitación personal" : "Invitación a validar" }),
     el("div", { clase: "invitacion__cabecera" }, [
       el("div", { clase: "avatar", "aria-hidden": "true", texto: experto ? iniciales(experto.nombre) : "" }, experto ? [] : [icono("sign")]),
       el("div", {}, [
-        el("div", { clase: "invitacion__nombre", texto: experto ? `${experto.grado} ${experto.nombre}` : "Estimado(a) experto(a)" }),
+        el("div", { clase: "invitacion__nombre", texto: experto ? `${experto.grado} ${experto.nombre}` : "Estimado(a) Docente / Experto(a)" }),
         el("div", { clase: "invitacion__rol", texto: experto?.rol || "Juez validador del instrumento" }),
       ]),
     ]),
     el("ul", { clase: "invitacion__lista" }, lista),
     el("div", { clase: "botones" }, [
-      el("a", { clase: "boton", href: "#evaluacion" }, ["Comenzar evaluación", icono("arrow")]),
-      docPrincipal ? el("a", { clase: "boton boton--secundario", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "Expediente PDF"]) : null,
+      el("a", { clase: "boton boton--grande", href: "#evaluacion" }, ["Comenzar evaluación", icono("arrow")]),
+      docPrincipal ? el("a", { clase: "boton boton--secundario", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "Ver expediente (PDF)"]) : null,
     ]),
   ]);
 
@@ -67,10 +80,10 @@ export function portada(p, experto) {
 
 export function pasos(p) {
   const datos = [
-    ["Revise el expediente", "Carta, definiciones de las variables, matriz de operacionalización y cuestionario."],
-    ["Evalúe cada ítem", `Marque ${p.evaluacion.criterios.map(c => c.nombre.toLowerCase()).join(", ").replace(/, ([^,]*)$/, " y $1")}; agregue sugerencias si lo desea.`],
-    ["Emita su opinión", "Indique la aplicabilidad del instrumento y sus observaciones generales."],
-    ["Firme y envíe", "Firme en pantalla, descargue el certificado en PDF y envíelo al investigador."],
+    ["1. Revise el expediente", "Consulte la carta oficial, variables y cuestionario en las pestañas."],
+    ["2. Califique cada ítem", "Lea cada pregunta y marque con un toque: Sí o No."],
+    ["3. Emita su dictamen", "Indique si el instrumento es aplicable y sus observaciones."],
+    ["4. Firme en pantalla", "Firme con el dedo o mouse y descargue su certificado en PDF."],
   ];
   return el("ol", { clase: "pasos", "aria-label": "Cómo funciona" }, datos.map(([t, d], i) => el("li", { clase: "paso tarjeta" }, [
     el("span", { clase: "paso__numero", texto: String(i + 1) }),
@@ -274,7 +287,8 @@ function segmento(nombre, escala, valorActual, etiquetaGrupo, alElegir) {
     const input = el("input", { type: "radio", name: nombre, value: String(opcion.valor), dataset: { polo: opcion.polo } });
     input.checked = valorActual === opcion.valor;
     input.addEventListener("change", () => alElegir(opcion.valor));
-    nodo.append(el("label", {}, [input, el("span", { texto: opcion.etiqueta })]));
+    const prefijo = opcion.polo === "alto" ? "✓ " : opcion.polo === "bajo" ? "✕ " : "";
+    nodo.append(el("label", {}, [input, el("span", { texto: `${prefijo}${opcion.etiqueta}` })]));
   }
   return nodo;
 }
@@ -421,7 +435,7 @@ export function seccionEvaluacion(p, estado) {
   });
 
   const nodo = el("section", { clase: "seccion", id: "evaluacion", "aria-labelledby": "titulo-seccion-2" }, [
-    cabeceraSeccion(2, "Evaluación de los ítems", `Para cada uno de los ${p.items.length} ítems, marque ${escalaTexto} en cada criterio. Si marca «${ev.escala.find(e => e.valor === ev.rango.min).etiqueta}», le sugerimos proponer una mejora.`),
+    cabeceraSeccion(2, "Evaluación de los ítems", `Lea cada enunciado y marque Sí o No en los tres criterios (Pertinencia, Relevancia y Claridad). Si marca No en alguno, podrá ingresar una sugerencia de mejora si lo desea.`),
     criterios,
     ev.suficiencia.activa && ev.suficiencia.definicion
       ? el("div", { clase: "aviso" }, [icono("info"), el("p", { html: `<strong>Suficiencia:</strong> ${md(ev.suficiencia.definicion)} Se evalúa al final de cada dimensión.` })])

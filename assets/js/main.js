@@ -18,6 +18,7 @@ iniciar();
 
 async function iniciar() {
   try {
+    inicializarAccesibilidad();
     const id = await resolverProyecto(parametros);
     const proyecto = await cargarProyecto(id);
     const clave = (parametros.get("e") || "").trim().toLowerCase();
@@ -32,11 +33,86 @@ async function iniciar() {
   }
 }
 
+function inicializarAccesibilidad() {
+  const raiz = document.documentElement;
+
+  // 1. Control de tema (Auto / Claro / Oscuro)
+  const botonTema = $("#boton-tema");
+  const iconoTema = $("#icono-tema use");
+  const textoTema = $("#texto-tema");
+  const temaGuardado = localStorage.getItem("tema_preferido") || "auto";
+
+  function aplicarModoTema(modo) {
+    if (modo === "claro") {
+      raiz.setAttribute("data-tema", "light");
+      if (textoTema) textoTema.textContent = "Claro";
+      if (iconoTema) iconoTema.setAttribute("href", "#i-sun");
+      $('meta[name="theme-color"]')?.setAttribute("content", "#0f3c6e");
+    } else if (modo === "oscuro") {
+      raiz.setAttribute("data-tema", "dark");
+      if (textoTema) textoTema.textContent = "Oscuro";
+      if (iconoTema) iconoTema.setAttribute("href", "#i-moon");
+      $('meta[name="theme-color"]')?.setAttribute("content", "#091322");
+    } else {
+      raiz.removeAttribute("data-tema");
+      if (textoTema) textoTema.textContent = "Auto";
+      if (iconoTema) iconoTema.setAttribute("href", "#i-contrast");
+      const esOscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      $('meta[name="theme-color"]')?.setAttribute("content", esOscuro ? "#091322" : "#0f3c6e");
+    }
+    localStorage.setItem("tema_preferido", modo);
+  }
+
+  aplicarModoTema(temaGuardado);
+
+  if (botonTema) {
+    botonTema.addEventListener("click", () => {
+      const actual = localStorage.getItem("tema_preferido") || "auto";
+      const siguiente = actual === "auto" ? "claro" : actual === "claro" ? "oscuro" : "auto";
+      aplicarModoTema(siguiente);
+    });
+  }
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    if ((localStorage.getItem("tema_preferido") || "auto") === "auto") {
+      aplicarModoTema("auto");
+    }
+  });
+
+  // 2. Control de tamaño de letra (Normal / Grande / Extra)
+  const botonFuente = $("#boton-fuente");
+  const textoFuente = $("#texto-fuente");
+  const fuenteGuardada = localStorage.getItem("tamano_fuente") || "normal";
+
+  function aplicarModoFuente(tamano) {
+    if (tamano === "grande") {
+      raiz.setAttribute("data-fuente", "grande");
+      if (textoFuente) textoFuente.textContent = "Letra grande";
+    } else if (tamano === "muy-grande") {
+      raiz.setAttribute("data-fuente", "muy-grande");
+      if (textoFuente) textoFuente.textContent = "Letra extra";
+    } else {
+      raiz.removeAttribute("data-fuente");
+      if (textoFuente) textoFuente.textContent = "Letra normal";
+    }
+    localStorage.setItem("tamano_fuente", tamano);
+  }
+
+  aplicarModoFuente(fuenteGuardada);
+
+  if (botonFuente) {
+    botonFuente.addEventListener("click", () => {
+      const actual = localStorage.getItem("tamano_fuente") || "normal";
+      const siguiente = actual === "normal" ? "grande" : actual === "grande" ? "muy-grande" : "normal";
+      aplicarModoFuente(siguiente);
+    });
+  }
+}
+
 function aplicarTema(p) {
   const raiz = document.documentElement;
   if (/^#[0-9a-f]{6}$/i.test(p.tema?.acento || "")) {
     raiz.style.setProperty("--acento", p.tema.acento);
-    $('meta[name="theme-color"][media*="light"]')?.setAttribute("content", p.tema.acento);
   }
   const inst = p.institucion || {};
   document.title = `Validación del instrumento · ${inst.siglas || inst.nombre || plano(p.investigacion.titulo)}`;
