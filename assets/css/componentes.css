@@ -1,0 +1,309 @@
+/* Componentes reutilizables: botones, controles, desplegables, avisos y el selector Sí/No. */
+
+/* Botón principal y variantes ---------------------------------------------------- */
+.boton {
+  --b-fondo: var(--acento);
+  --b-fondo-hover: var(--acento-fuerte);
+  --b-tinta: var(--sobre-acento);
+  --b-borde: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 50px;
+  padding: 12px 22px;
+  border: 1.5px solid var(--b-borde);
+  border-radius: var(--radio);
+  background: var(--b-fondo);
+  color: var(--b-tinta);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--sombra-1);
+  transition: background-color var(--transicion), border-color var(--transicion), box-shadow var(--transicion), transform var(--transicion);
+}
+.boton:hover { background: var(--b-fondo-hover); text-decoration: none; box-shadow: var(--sombra-2); }
+.boton:active { transform: translateY(1px); box-shadow: var(--sombra-1); }
+.boton:focus-visible { outline: none; box-shadow: var(--anillo); }
+.boton:disabled { opacity: .65; cursor: progress; transform: none; }
+.boton .icono { width: 20px; height: 20px; }
+
+.boton--grande { min-height: 56px; padding: 14px 28px; font-size: 1.1rem; }
+.boton--bloque { width: 100%; }
+
+.boton--secundario {
+  --b-fondo: var(--superficie);
+  --b-fondo-hover: var(--acento-50);
+  --b-tinta: var(--tinta);
+  --b-borde: var(--borde-fuerte);
+}
+.boton--secundario .icono { color: var(--acento-texto); }
+
+.boton--whatsapp {
+  --b-fondo: #157f3c;
+  --b-fondo-hover: #106631;
+  --b-tinta: #fff;
+}
+
+.botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Botón «Volver» del pie de cada pantalla */
+.boton-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radio);
+  background: none;
+  color: var(--tinta-2);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--transicion), color var(--transicion), border-color var(--transicion);
+}
+.boton-volver:hover { background: var(--superficie-2); border-color: var(--borde); color: var(--tinta); }
+
+/* Botón con aspecto de enlace (comentarios, firma, reinicio) */
+.boton-enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--acento-texto);
+  font-size: .98rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: .22em;
+  cursor: pointer;
+}
+.boton-enlace:hover { text-decoration-thickness: 2.5px; }
+.boton-enlace .icono { width: 18px; height: 18px; }
+
+/* Botones de accesibilidad de la cabecera (letra y tema) */
+.boton-accesibilidad {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--tinta);
+  font-size: .88rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transicion), border-color var(--transicion);
+}
+.boton-accesibilidad:hover { background: var(--superficie-2); border-color: var(--borde-fuerte); }
+.boton-accesibilidad .icono { width: 18px; height: 18px; color: var(--acento-texto); }
+@media (max-width: 559px) {
+  .boton-accesibilidad { justify-content: center; padding: 6px; }
+}
+
+/* Tarjeta genérica ----------------------------------------------------------------- */
+.tarjeta {
+  padding: 24px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-l);
+  background: var(--superficie);
+  box-shadow: var(--sombra-1);
+}
+
+.nota-suave { margin: 0; font-size: .95rem; color: var(--tinta-3); }
+
+/* Campos de formulario ---------------------------------------------------------- */
+.control {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--borde-fuerte);
+  border-radius: var(--radio-s);
+  background: var(--superficie);
+  color: var(--tinta);
+  font-size: 1.02rem;
+  line-height: 1.45;
+  transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+.control::placeholder { color: var(--tinta-3); opacity: 1; }
+.control:hover { border-color: var(--tinta-3); }
+.control:focus { outline: none; border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-100); }
+.control.invalido { border-color: var(--mal); box-shadow: 0 0 0 3px var(--mal-50); }
+textarea.control { min-height: 0; resize: vertical; }
+select.control {
+  appearance: none;
+  padding-right: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a6285' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 20px;
+}
+
+.rejilla-campos {
+  display: grid;
+  gap: 18px;
+}
+@media (min-width: 600px) {
+  .rejilla-campos { grid-template-columns: 1fr 1fr; }
+  .campo--ancho { grid-column: 1 / -1; }
+}
+.campo { display: grid; gap: 6px; min-width: 0; }
+.campo__etiqueta { font-weight: 700; color: var(--tinta); }
+.campo__ayuda { font-size: .9rem; color: var(--tinta-3); }
+
+/* Desplegable (definiciones) ------------------------------------------------------- */
+.desplegable {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: var(--superficie);
+}
+.desplegable > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 12px 16px;
+  list-style: none;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--tinta);
+  border-radius: inherit;
+}
+.desplegable > summary::-webkit-details-marker { display: none; }
+.desplegable > summary > .icono { width: 20px; height: 20px; color: var(--acento-texto); }
+.desplegable > summary > span { flex: 1; min-width: 0; }
+.desplegable > summary::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--tinta-3);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform var(--transicion);
+}
+.desplegable[open] > summary::after { transform: rotate(180deg); }
+.desplegable > summary:hover { background: var(--superficie-2); }
+.desplegable[open] > summary { border-bottom: 1px solid var(--borde); border-radius: var(--radio) var(--radio) 0 0; }
+.desplegable > :not(summary) { padding: 16px; }
+
+.desplegable--chico { margin-bottom: 18px; }
+.desplegable--chico > summary { min-height: 46px; font-size: .95rem; color: var(--tinta-2); }
+.desplegable--chico > p { font-size: .98rem; color: var(--tinta-2); }
+
+/* Avisos ------------------------------------------------------------------------- */
+.avisos { display: grid; gap: 12px; }
+.avisos:not(:empty) { margin-bottom: 24px; }
+
+.aviso {
+  --a-tono: var(--acento-texto);
+  --a-fondo: var(--acento-50);
+  --a-borde: var(--acento-200);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--a-borde);
+  border-radius: var(--radio);
+  background: var(--a-fondo);
+  color: var(--tinta);
+  font-size: .98rem;
+}
+.aviso > .icono { width: 22px; height: 22px; margin-top: 1px; color: var(--a-tono); }
+.aviso > div { min-width: 0; }
+.aviso__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 12px;
+}
+.aviso--aviso { --a-tono: var(--aviso); --a-fondo: var(--aviso-50); --a-borde: var(--aviso-200); }
+.aviso--mal { --a-tono: var(--mal); --a-fondo: var(--mal-50); --a-borde: var(--mal-200); }
+
+/* Selector Sí / No ------------------------------------------------------------------
+   Dos botones del mismo ancho; el elegido se rellena de verde (alto) o rojo (bajo). */
+.segmento {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.segmento label {
+  position: relative;
+  display: grid;
+}
+.segmento input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.segmento span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1.5px solid var(--borde-fuerte);
+  border-radius: 10px;
+  background: var(--superficie);
+  color: var(--tinta-2);
+  font-size: 1.05rem;
+  font-weight: 700;
+  user-select: none;
+  transition: background-color var(--transicion), border-color var(--transicion), color var(--transicion), box-shadow var(--transicion);
+}
+.segmento span::before {
+  content: "";
+  width: 0;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: var(--marca-icono, none) center / contain no-repeat;
+  mask: var(--marca-icono, none) center / contain no-repeat;
+  transition: width var(--transicion);
+}
+.segmento label:hover span { border-color: var(--acento); background: var(--acento-50); color: var(--tinta); }
+.segmento input:focus-visible + span { box-shadow: var(--anillo); }
+
+.segmento input:checked + span {
+  color: var(--sobre-estado);
+  box-shadow: var(--sombra-1);
+}
+.segmento input:checked + span::before { width: 18px; }
+.segmento input[data-polo="alto"]:checked + span {
+  --marca-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  background: var(--ok-solido);
+  border-color: var(--ok-solido);
+}
+.segmento input[data-polo="bajo"]:checked + span {
+  --marca-icono: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+  background: var(--mal-solido);
+  border-color: var(--mal-solido);
+}
+.segmento input[data-polo="medio"]:checked + span {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: var(--sobre-acento);
+}

@@ -1,0 +1,212 @@
+/* Pantalla de bienvenida: saludo, ficha de la tesis y cómo funciona. */
+
+.pantalla--inicio { gap: 28px; }
+.pantalla--inicio > .avisos:not(:empty) { margin-bottom: -4px; }
+
+/* Saludo ------------------------------------------------------------------------- */
+.inicio__saludo {
+  display: block;
+  margin: 0 0 6px;
+  font-family: var(--fuente);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--acento-texto);
+}
+.inicio__titulo {
+  margin-bottom: 14px;
+  font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.5rem);
+  line-height: 1.15;
+}
+.inicio__texto {
+  margin: 0 0 18px;
+  max-width: 62ch;
+  font-size: 1.12rem;
+  color: var(--tinta-2);
+}
+.inicio__texto strong { color: var(--tinta); }
+
+.inicio__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inicio__datos li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--tinta-2);
+}
+.inicio__datos .icono { width: 18px; height: 18px; color: var(--acento-texto); }
+
+/* Ficha de la tesis ------------------------------------------------------------------ */
+.ficha {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 20px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-l);
+  background: var(--superficie);
+  box-shadow: var(--sombra-1);
+}
+.ficha::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: var(--acento);
+}
+@media (min-width: 600px) {
+  .ficha { padding: 32px; }
+}
+
+.ficha__titulo {
+  margin: 0 0 20px;
+  font-family: var(--fuente-titulos);
+  font-size: clamp(1.25rem, 1.1rem + .7vw, 1.55rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.ficha__datos {
+  display: grid;
+  gap: 14px 28px;
+  margin: 0;
+}
+@media (min-width: 600px) {
+  .ficha__datos { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+.ficha__datos dt {
+  margin-bottom: 2px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+}
+.ficha__datos dd {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--tinta);
+}
+
+.ficha__subtitulo {
+  margin: 26px 0 12px;
+  padding-top: 22px;
+  border-top: 1px solid var(--borde);
+  font-size: 1.05rem;
+}
+
+.ficha__variables {
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 600px) {
+  .ficha__variables { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+.variable {
+  padding: 16px;
+  border-radius: var(--radio);
+  background: var(--superficie-2);
+  border: 1px solid var(--borde);
+}
+.variable__rol {
+  margin: 0 0 2px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--acento-texto);
+}
+.variable h4 { margin: 0 0 10px; font-size: 1.05rem; }
+.variable ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.variable li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: .95rem;
+  color: var(--tinta-2);
+}
+.variable li strong { font-weight: 600; color: var(--tinta); }
+.variable li span {
+  flex-shrink: 0;
+  font-size: .85rem;
+  color: var(--tinta-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha__documento { margin-top: 18px; }
+
+/* Cómo funciona -------------------------------------------------------------- */
+.inicio__subtitulo {
+  margin: 0 0 14px;
+  font-family: var(--fuente-titulos);
+  font-size: 1.35rem;
+}
+.inicio__pasos {
+  display: grid;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+.inicio__pasos li {
+  counter-increment: paso;
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  column-gap: 14px;
+  padding-bottom: 18px;
+}
+.inicio__pasos li:last-child { padding-bottom: 0; }
+.inicio__pasos li::before {
+  content: counter(paso);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--acento-100);
+  color: var(--acento-texto);
+  font-weight: 700;
+}
+/* Línea que une los pasos */
+.inicio__pasos li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 40px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--borde);
+}
+.inicio__pasos li:last-child::before { background: var(--ok); color: var(--sobre-estado); }
+.inicio__pasos strong { padding-top: 5px; font-size: 1.05rem; line-height: 1.35; }
+.inicio__pasos span { color: var(--tinta-2); line-height: 1.5; }
+
+.inicio__accion {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+@media (max-width: 479px) {
+  .inicio__accion .boton { width: 100%; }
+}

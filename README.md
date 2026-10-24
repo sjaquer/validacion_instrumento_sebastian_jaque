@@ -18,7 +18,7 @@ Formato general: `?e=<clave del experto>` abre el proyecto predeterminado (`proy
 
 ## Qué hace la página
 
-1. **Expediente:** carta de presentación personalizada, definiciones de variables y dimensiones, matriz de operacionalización y vista previa del cuestionario; enlace al expediente en PDF.
+1. **Bienvenida:** saludo personalizado según la hora, ficha de la tesis (enfoque, instrumento, variables y dimensiones), cómo funciona la página y enlace al expediente en PDF.
 2. **Evaluación:** cada ítem con sus criterios (por defecto pertinencia, relevancia y claridad, Sí/No), sugerencias por ítem y suficiencia por dimensión. Si el experto marca «No», la página le pide una sugerencia.
 3. **Valoración global:** opinión de aplicabilidad, observaciones generales y un resumen visual de toda la evaluación.
 4. **Firma y envío:** datos del juez (grado, nombre, DNI, especialidad), firma con el dedo, lápiz o mouse (o imagen escaneada), declaración de conformidad y certificado en PDF con el formato del expediente, código de verificación y pie de página.
@@ -33,7 +33,14 @@ Además: avance guardado en el dispositivo (puede cerrar y continuar), barra de 
 index.html                    ← página única (carga el proyecto según el enlace)
 404.html · robots.txt · .nojekyll · manifest.webmanifest
 assets/
-  css/app.css                 ← sistema de diseño (tokens, componentes, tema oscuro, impresión)
+  css/tokens.css              ← colores, tipografía y modo oscuro (claro / oscuro / automático)
+  css/base.css                ← normalización, tipografía y utilidades
+  css/layout.css              ← cabecera, pantallas, pie y estados de página
+  css/componentes.css         ← botones, campos, desplegables, avisos y selector Sí/No
+  css/inicio.css              ← bienvenida: saludo, ficha de la tesis y pasos
+  css/evaluacion.css          ← tarjetas de preguntas, suficiencia y navegación
+  css/cierre.css              ← opinión final, firma y certificado listo
+  css/impresion.css           ← impresión (se carga con media="print")
   js/main.js                  ← arranque, navegación, progreso, generación del PDF
   js/vista.js                 ← construcción de la interfaz a partir del proyecto
   js/datos.js                 ← carga y comprobación de proyecto.json

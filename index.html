@@ -5,19 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Validación de contenido de instrumentos de investigación por juicio de expertos.">
-  <meta name="theme-color" content="#0f3c6e" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#091322" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e1a2b" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
   <title>Validación por juicio de expertos</title>
+  <script>
+    // Aplica el tema y la letra elegidos antes de pintar, para evitar un destello del tema contrario.
+    try {
+      var t = localStorage.getItem("tema_preferido"), f = localStorage.getItem("tamano_fuente");
+      if (t === "oscuro" || t === "claro") document.documentElement.setAttribute("data-tema", t === "oscuro" ? "dark" : "light");
+      if (f === "grande" || f === "muy-grande") document.documentElement.setAttribute("data-fuente", f);
+    } catch (e) {}
+  </script>
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap">
-  <link rel="stylesheet" href="assets/css/app.css?v=3.0.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400..800;1,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/base.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/layout.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/componentes.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/inicio.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/evaluacion.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/cierre.css?v=4.1.0">
+  <link rel="stylesheet" href="assets/css/impresion.css?v=4.1.0" media="print">
   <script src="assets/vendor/jspdf.umd.min.js" defer></script>
   <script src="assets/vendor/jspdf.plugin.autotable.min.js" defer></script>
-  <script type="module" src="assets/js/main.js?v=3.0.0"></script>
+  <script type="module" src="assets/js/main.js?v=4.1.0"></script>
 </head>
 <body>
   <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -70,13 +85,13 @@
         </span>
       </a>
       <div class="barra-superior__acciones">
-        <button type="button" class="boton-accesibilidad" id="boton-fuente" aria-label="Aumentar tamaño de letra" title="Ajustar tamaño de letra para lectura cómoda">
+        <button type="button" class="boton-accesibilidad" id="boton-fuente" aria-label="Tamaño de letra: normal. Pulse para cambiarlo.">
           <svg class="icono" aria-hidden="true"><use href="#i-font-size"/></svg>
           <span class="boton-accesibilidad__texto" id="texto-fuente">Letra normal</span>
         </button>
-        <button type="button" class="boton-accesibilidad" id="boton-tema" aria-label="Cambiar tema visual (claro, oscuro o según el dispositivo)" title="Cambiar a modo claro u oscuro">
-          <svg class="icono" id="icono-tema" aria-hidden="true"><use href="#i-contrast"/></svg>
-          <span class="boton-accesibilidad__texto" id="texto-tema">Auto</span>
+        <button type="button" class="boton-accesibilidad" id="boton-tema" aria-label="Cambiar a modo oscuro">
+          <svg class="icono" id="icono-tema" aria-hidden="true"><use href="#i-moon"/></svg>
+          <span class="boton-accesibilidad__texto" id="texto-tema">Modo oscuro</span>
         </button>
         <span class="guardado" id="indicador-guardado" aria-live="polite" hidden>
           <svg class="icono" aria-hidden="true"><use href="#i-check"/></svg><span>Guardado</span>

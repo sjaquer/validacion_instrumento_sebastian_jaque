@@ -1,0 +1,146 @@
+/* Tokens de diseño: color, tipografía, formas y movimiento.
+   Modo claro por defecto; oscuro automático por el dispositivo o forzado con
+   data-tema="dark" (el botón de tema de la cabecera). */
+
+:root {
+  color-scheme: light;
+
+  /* Acento institucional: main.js lo sobrescribe con proyecto.tema.acento (--acento-marca). */
+  --acento: var(--acento-marca, #0f3c6e);
+  --acento-fuerte: #0a2a4f;
+  --acento-texto: var(--acento);
+  --acento-50: #f0f5fb;
+  --acento-100: #dbe7f5;
+  --acento-200: #b3cbe8;
+  --sobre-acento: #ffffff;
+
+  --fondo: #f4f7fb;
+  --superficie: #ffffff;
+  --superficie-2: #f0f4f9;
+  --superficie-3: #e3ebf5;
+
+  --tinta: #0b1d36;
+  --tinta-2: #2a4366;
+  --tinta-3: #4a6285;
+  --borde: #d3deeb;
+  --borde-fuerte: #9fb4cf;
+
+  --ok: #15803d;
+  --ok-solido: #15803d;
+  --ok-50: #effbf3;
+  --ok-200: #9fe2b6;
+  --mal: #b91c1c;
+  --mal-solido: #c81e1e;
+  --mal-50: #fef3f2;
+  --mal-200: #f7b4ae;
+  --aviso: #a34a06;
+  --aviso-50: #fff8eb;
+  --aviso-200: #f6d58e;
+  --sobre-estado: #ffffff;
+
+  --fuente: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --fuente-titulos: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  --radio-s: 8px;
+  --radio: 12px;
+  --radio-l: 18px;
+
+  --sombra-1: 0 1px 2px rgb(11 29 54 / .06), 0 1px 1px rgb(11 29 54 / .04);
+  --sombra-2: 0 6px 20px -6px rgb(11 29 54 / .14), 0 2px 6px -2px rgb(11 29 54 / .08);
+  --sombra-3: 0 24px 60px -16px rgb(11 29 54 / .3);
+  --anillo: 0 0 0 3px var(--superficie), 0 0 0 6px color-mix(in oklab, var(--acento) 55%, transparent);
+
+  --alto-barra: 64px;
+  --ancho-flujo: 760px;
+  --margen: 16px;
+  --transicion: 160ms cubic-bezier(.2, .7, .3, 1);
+}
+
+@supports (color: color-mix(in oklab, red, blue)) {
+  :root {
+    --acento-fuerte: color-mix(in oklab, var(--acento) 80%, black);
+    --acento-50: color-mix(in oklab, var(--acento) 6%, white);
+    --acento-100: color-mix(in oklab, var(--acento) 14%, white);
+    --acento-200: color-mix(in oklab, var(--acento) 30%, white);
+  }
+}
+
+@media (min-width: 600px) {
+  :root { --margen: 24px; --alto-barra: 70px; }
+}
+
+/* Tamaño de letra elegido por el experto (botón «Letra» de la cabecera). */
+html[data-fuente="grande"] { font-size: 112.5%; }
+html[data-fuente="muy-grande"] { font-size: 125%; }
+
+/* Modo oscuro: los mismos valores para el automático y el forzado. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="light"]) {
+    color-scheme: dark;
+    --acento: #6cb6f5;
+    --acento-fuerte: #9ccff9;
+    --acento-texto: #8cc7f8;
+    --acento-50: #0e2238;
+    --acento-100: #14304f;
+    --acento-200: #22466f;
+    --sobre-acento: #04121f;
+    --fondo: #070f1a;
+    --superficie: #0e1a2b;
+    --superficie-2: #132238;
+    --superficie-3: #1a2d48;
+    --tinta: #f1f5fa;
+    --tinta-2: #c9d5e4;
+    --tinta-3: #9cafc7;
+    --borde: #22364f;
+    --borde-fuerte: #3d5a80;
+    --ok: #4ade80;
+    --ok-solido: #22c55e;
+    --ok-50: #0a2a17;
+    --ok-200: #1f6b3b;
+    --mal: #f87171;
+    --mal-solido: #ef4444;
+    --mal-50: #33100f;
+    --mal-200: #8a2622;
+    --aviso: #fbbf24;
+    --aviso-50: #2e1d05;
+    --aviso-200: #7a4e0c;
+    --sobre-estado: #04121f;
+    --sombra-1: 0 1px 2px rgb(0 0 0 / .4);
+    --sombra-2: 0 8px 24px rgb(0 0 0 / .45);
+    --sombra-3: 0 24px 60px rgb(0 0 0 / .65);
+  }
+}
+:root[data-tema="dark"] {
+  color-scheme: dark;
+  --acento: #6cb6f5;
+  --acento-fuerte: #9ccff9;
+  --acento-texto: #8cc7f8;
+  --acento-50: #0e2238;
+  --acento-100: #14304f;
+  --acento-200: #22466f;
+  --sobre-acento: #04121f;
+  --fondo: #070f1a;
+  --superficie: #0e1a2b;
+  --superficie-2: #132238;
+  --superficie-3: #1a2d48;
+  --tinta: #f1f5fa;
+  --tinta-2: #c9d5e4;
+  --tinta-3: #9cafc7;
+  --borde: #22364f;
+  --borde-fuerte: #3d5a80;
+  --ok: #4ade80;
+  --ok-solido: #22c55e;
+  --ok-50: #0a2a17;
+  --ok-200: #1f6b3b;
+  --mal: #f87171;
+  --mal-solido: #ef4444;
+  --mal-50: #33100f;
+  --mal-200: #8a2622;
+  --aviso: #fbbf24;
+  --aviso-50: #2e1d05;
+  --aviso-200: #7a4e0c;
+  --sobre-estado: #04121f;
+  --sombra-1: 0 1px 2px rgb(0 0 0 / .4);
+  --sombra-2: 0 8px 24px rgb(0 0 0 / .45);
+  --sombra-3: 0 24px 60px rgb(0 0 0 / .65);
+}

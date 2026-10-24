@@ -1,0 +1,214 @@
+/* Opinión final, datos del juez, firma y certificado generado. */
+
+/* Opciones de aplicabilidad ------------------------------------------------------- */
+.opciones-tarjeta {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 8px;
+  border-radius: var(--radio);
+  scroll-margin-top: calc(var(--alto-barra) + 16px);
+}
+.opciones-tarjeta.falta { outline: 2px dashed var(--aviso); outline-offset: 6px; }
+
+.opcion-tarjeta {
+  --tono: var(--acento);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  cursor: pointer;
+  transition: border-color var(--transicion), background-color var(--transicion), box-shadow var(--transicion);
+}
+.opcion-tarjeta--ok { --tono: var(--ok); }
+.opcion-tarjeta--aviso { --tono: var(--aviso); }
+.opcion-tarjeta--mal { --tono: var(--mal); }
+.opcion-tarjeta:hover { border-color: var(--tono); }
+.opcion-tarjeta input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.opcion-tarjeta__icono {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--tono);
+  transition: background-color var(--transicion), color var(--transicion);
+}
+.opcion-tarjeta__icono .icono { width: 22px; height: 22px; }
+.opcion-tarjeta strong { display: block; font-size: 1.08rem; }
+.opcion-tarjeta small { display: block; font-size: .95rem; color: var(--tinta-2); }
+.opcion-tarjeta:has(input:focus-visible) { box-shadow: var(--anillo); }
+.opcion-tarjeta:has(input:checked) {
+  border-width: 2px;
+  border-color: var(--tono);
+  background: var(--superficie-2);
+}
+.opcion-tarjeta:has(input:checked) .opcion-tarjeta__icono { background: var(--tono); color: var(--superficie); }
+
+.resumen-evaluacion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: var(--radio);
+  background: var(--superficie-2);
+  color: var(--tinta-2);
+}
+.resumen-evaluacion .icono { width: 20px; height: 20px; margin-top: 2px; color: var(--acento-texto); }
+.resumen-evaluacion strong { color: var(--tinta); }
+
+.etiqueta-bloque { display: block; margin: 24px 0 8px; font-size: 1.05rem; }
+.subtitulo { margin: 28px 0 10px; font-size: 1.15rem; }
+
+/* Recuadro de firma ---------------------------------------------------------------- */
+/* El lienzo siempre es claro: la firma se dibuja con tinta oscura y se exporta tal cual al PDF. */
+.lienzo-firma {
+  position: relative;
+  overflow: hidden;
+  border: 2px dashed var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: #fff;
+  touch-action: none;
+  scroll-margin-top: calc(var(--alto-barra) + 16px);
+}
+.lienzo-firma.activo { border-style: solid; border-color: var(--acento); }
+.lienzo-firma.falta { border-color: var(--aviso); }
+.lienzo-firma canvas {
+  display: block;
+  width: 100%;
+  height: 220px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.lienzo-firma__guia {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 48px;
+  border-bottom: 2px solid #cbd5e1;
+  pointer-events: none;
+}
+.lienzo-firma__x {
+  position: absolute;
+  left: 28px;
+  bottom: 52px;
+  color: #8796ab;
+  font: 700 22px/1 var(--fuente);
+  pointer-events: none;
+}
+.lienzo-firma__vacio {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 24px 44px;
+  color: #5b6b82;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+}
+
+.firma__herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 8px 0 20px;
+}
+
+.declaracion {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie);
+  cursor: pointer;
+  scroll-margin-top: calc(var(--alto-barra) + 16px);
+  transition: border-color var(--transicion);
+}
+.declaracion:hover { border-color: var(--acento); }
+.declaracion.falta { border-color: var(--aviso); background: var(--aviso-50); }
+.declaracion input {
+  width: 24px;
+  height: 24px;
+  margin: 1px 0 0;
+  flex-shrink: 0;
+  accent-color: var(--acento);
+  cursor: pointer;
+}
+
+.faltantes { margin-bottom: 16px; }
+.faltantes ul { margin: 8px 0 0; padding-left: 20px; }
+.faltantes a { color: var(--tinta); }
+
+#generar + .aviso { margin-top: 16px; }
+
+/* Certificado listo --------------------------------------------------------------- */
+.exito {
+  margin-top: 20px;
+  padding: 28px 20px;
+  border: 2px solid var(--ok);
+  border-radius: var(--radio-l);
+  background: var(--ok-50);
+  text-align: center;
+}
+.exito:focus { outline: none; }
+.exito__icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: var(--ok);
+  color: var(--sobre-estado);
+}
+.exito__icono .icono { width: 32px; height: 32px; }
+.exito h3 { margin-bottom: 8px; font-family: var(--fuente-titulos); font-size: 1.45rem; }
+.exito p { max-width: 54ch; margin-inline: auto; color: var(--tinta-2); }
+.exito__acciones {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+.exito__acciones .boton { width: min(100%, 22rem); }
+.exito__extra {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 20px;
+  margin-top: 6px;
+}
+.exito__archivo {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 12px;
+  border-radius: var(--radio-s);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  font: 700 .85rem/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-wrap: anywhere;
+}
+.exito__pie { margin-top: 14px; font-size: .9rem; }
+.exito__gracias { margin-top: 10px; font-family: var(--fuente-titulos); font-size: 1.15rem; font-weight: 600; color: var(--tinta); }

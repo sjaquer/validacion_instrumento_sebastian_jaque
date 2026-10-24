@@ -14,6 +14,16 @@ import * as vista from "./vista.js";
 const parametros = new URLSearchParams(location.search);
 const app = $("#app");
 
+// Preferencias de lectura (tema y letra). Sin almacenamiento disponible, la página funciona igual.
+const preferencias = {
+  leer(clave, porDefecto) {
+    try { return localStorage.getItem(clave) || porDefecto; } catch { return porDefecto; }
+  },
+  escribir(clave, valor) {
+    try { localStorage.setItem(clave, valor); } catch { /* sin almacenamiento */ }
+  },
+};
+
 iniciar();
 
 async function iniciar() {
@@ -35,84 +45,56 @@ async function iniciar() {
 
 function inicializarAccesibilidad() {
   const raiz = document.documentElement;
+  const oscuroDispositivo = matchMedia("(prefers-color-scheme: dark)");
 
-  // 1. Control de tema (Auto / Claro / Oscuro)
+  // 1. Tema: sigue al dispositivo hasta que el experto elige claro u oscuro con el botón.
   const botonTema = $("#boton-tema");
   const iconoTema = $("#icono-tema use");
   const textoTema = $("#texto-tema");
-  const temaGuardado = localStorage.getItem("tema_preferido") || "auto";
+  const temaElegido = () => ["claro", "oscuro"].find(t => t === preferencias.leer("tema_preferido", "")) || "";
+  const esOscuro = () => (temaElegido() ? temaElegido() === "oscuro" : oscuroDispositivo.matches);
 
-  function aplicarModoTema(modo) {
-    if (modo === "claro") {
-      raiz.setAttribute("data-tema", "light");
-      if (textoTema) textoTema.textContent = "Claro";
-      if (iconoTema) iconoTema.setAttribute("href", "#i-sun");
-      $('meta[name="theme-color"]')?.setAttribute("content", "#0f3c6e");
-    } else if (modo === "oscuro") {
-      raiz.setAttribute("data-tema", "dark");
-      if (textoTema) textoTema.textContent = "Oscuro";
-      if (iconoTema) iconoTema.setAttribute("href", "#i-moon");
-      $('meta[name="theme-color"]')?.setAttribute("content", "#091322");
-    } else {
-      raiz.removeAttribute("data-tema");
-      if (textoTema) textoTema.textContent = "Auto";
-      if (iconoTema) iconoTema.setAttribute("href", "#i-contrast");
-      const esOscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      $('meta[name="theme-color"]')?.setAttribute("content", esOscuro ? "#091322" : "#0f3c6e");
-    }
-    localStorage.setItem("tema_preferido", modo);
+  function pintarTema() {
+    const oscuro = esOscuro();
+    raiz.setAttribute("data-tema", oscuro ? "dark" : "light");
+    // El botón anuncia lo que hará al pulsarlo.
+    textoTema.textContent = oscuro ? "Modo claro" : "Modo oscuro";
+    iconoTema.setAttribute("href", oscuro ? "#i-sun" : "#i-moon");
+    botonTema.setAttribute("aria-label", oscuro ? "Cambiar a modo claro" : "Cambiar a modo oscuro");
+    for (const meta of $$('meta[name="theme-color"]')) meta.setAttribute("content", oscuro ? "#0e1a2b" : "#ffffff");
   }
-
-  aplicarModoTema(temaGuardado);
-
-  if (botonTema) {
-    botonTema.addEventListener("click", () => {
-      const actual = localStorage.getItem("tema_preferido") || "auto";
-      const siguiente = actual === "auto" ? "claro" : actual === "claro" ? "oscuro" : "auto";
-      aplicarModoTema(siguiente);
-    });
-  }
-
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
-    if ((localStorage.getItem("tema_preferido") || "auto") === "auto") {
-      aplicarModoTema("auto");
-    }
+  botonTema.addEventListener("click", () => {
+    preferencias.escribir("tema_preferido", esOscuro() ? "claro" : "oscuro");
+    pintarTema();
   });
+  oscuroDispositivo.addEventListener("change", () => { if (!temaElegido()) pintarTema(); });
+  pintarTema();
 
-  // 2. Control de tamaño de letra (Normal / Grande / Extra)
+  // 2. Tamaño de letra: normal → grande → muy grande → normal.
+  const TAMANOS = { normal: "normal", grande: "grande", "muy-grande": "muy grande" };
   const botonFuente = $("#boton-fuente");
   const textoFuente = $("#texto-fuente");
-  const fuenteGuardada = localStorage.getItem("tamano_fuente") || "normal";
 
-  function aplicarModoFuente(tamano) {
-    if (tamano === "grande") {
-      raiz.setAttribute("data-fuente", "grande");
-      if (textoFuente) textoFuente.textContent = "Letra grande";
-    } else if (tamano === "muy-grande") {
-      raiz.setAttribute("data-fuente", "muy-grande");
-      if (textoFuente) textoFuente.textContent = "Letra extra";
-    } else {
-      raiz.removeAttribute("data-fuente");
-      if (textoFuente) textoFuente.textContent = "Letra normal";
-    }
-    localStorage.setItem("tamano_fuente", tamano);
+  function aplicarFuente(tamano) {
+    if (!TAMANOS[tamano]) tamano = "normal";
+    if (tamano === "normal") raiz.removeAttribute("data-fuente"); else raiz.setAttribute("data-fuente", tamano);
+    textoFuente.textContent = `Letra ${TAMANOS[tamano]}`;
+    botonFuente.setAttribute("aria-label", `Tamaño de letra: ${TAMANOS[tamano]}. Pulse para cambiarlo.`);
+    preferencias.escribir("tamano_fuente", tamano);
   }
-
-  aplicarModoFuente(fuenteGuardada);
-
-  if (botonFuente) {
-    botonFuente.addEventListener("click", () => {
-      const actual = localStorage.getItem("tamano_fuente") || "normal";
-      const siguiente = actual === "normal" ? "grande" : actual === "grande" ? "muy-grande" : "normal";
-      aplicarModoFuente(siguiente);
-    });
-  }
+  botonFuente.addEventListener("click", () => {
+    const orden = Object.keys(TAMANOS);
+    const actual = preferencias.leer("tamano_fuente", "normal");
+    aplicarFuente(orden[(orden.indexOf(actual) + 1) % orden.length]);
+  });
+  aplicarFuente(preferencias.leer("tamano_fuente", "normal"));
 }
 
 function aplicarTema(p) {
   const raiz = document.documentElement;
+  // Solo cambia el acento del modo claro; el modo oscuro usa su propio azul legible.
   if (/^#[0-9a-f]{6}$/i.test(p.tema?.acento || "")) {
-    raiz.style.setProperty("--acento", p.tema.acento);
+    raiz.style.setProperty("--acento-marca", p.tema.acento);
   }
   const inst = p.institucion || {};
   document.title = `Validación del instrumento · ${inst.siglas || inst.nombre || plano(p.investigacion.titulo)}`;
@@ -153,7 +135,7 @@ function montar(p, experto, estado, { claveDesconocida }) {
   const revisiones = dims.map(({ v, d }, i) => vista.pantallaDimension(p, estado, v, d, i, total));
   const opinion = vista.pantallaOpinion(p, estado, (total + 1) / (total + 2));
   const firma = vista.pantallaFirma(p, estado, experto);
-  const pantallas = [inicio.nodo, ...revisiones.map(r => r.nodo), opinion, firma.nodo];
+  const pantallas = [inicio.nodo, ...revisiones.map(r => r.nodo), opinion.nodo, firma.nodo];
   const notificacion = el("div", { clase: "notificacion", role: "status", "aria-live": "polite" });
 
   app.replaceChildren(
@@ -201,14 +183,26 @@ function montar(p, experto, estado, { claveDesconocida }) {
       if (nodo?.matches(".item, .suficiencia, .opciones-tarjeta")) nodo.classList.add("falta");
     }
     const aviso = pantalla.querySelector(".navegacion__aviso");
+    aviso.textContent = describirFaltantes(faltan);
+    aviso.hidden = false;
+    irA(faltan[0].id);
+  }
+
+  function describirFaltantes(faltan) {
     const items = faltan.filter(x => x.id.startsWith("item-")).length;
     const otras = faltan.length - items;
-    aviso.textContent = [
+    return [
       items ? `Falta responder ${items === 1 ? "1 pregunta" : `${items} preguntas`}` : "",
       otras ? (faltan[faltan.length - 1].id.startsWith("suficiencia") ? "la pregunta final de esta parte" : "elegir una opción") : "",
     ].filter(Boolean).join(" y ") + ". Las marcamos en color.";
-    aviso.hidden = false;
-    irA(faltan[0].id);
+  }
+
+  // Si el aviso de faltantes está a la vista, se actualiza con cada respuesta y desaparece al completar.
+  function actualizarAviso() {
+    const aviso = pantallas[actual].querySelector(".navegacion__aviso");
+    if (!aviso || aviso.hidden) return;
+    const faltan = faltantesEn(pantallas[actual]);
+    if (faltan.length) aviso.textContent = describirFaltantes(faltan); else aviso.hidden = true;
   }
 
   document.addEventListener("click", e => {
@@ -224,10 +218,11 @@ function montar(p, experto, estado, { claveDesconocida }) {
 
   const refrescar = () => {
     revisiones.forEach(r => r.refrescar());
+    opinion.refrescar();
     inicio.boton.firstChild.textContent = estado.avance().hechas ? "Continuar donde lo dejé" : "Empezar la revisión";
   };
   estado.alCambiar(evento => {
-    if (evento.tipo === "cambio") refrescar();
+    if (evento.tipo === "cambio") { refrescar(); actualizarAviso(); }
     if (evento.tipo === "guardado") indicarGuardado(evento.ok);
   });
   refrescar();
@@ -256,7 +251,7 @@ function mostrarRestauracion(p, estado, avisos) {
   if (!r) return;
   const { porcentaje, hechas } = estado.avance();
   if (!hechas && !estado.datos.firma) return;
-  const boton = el("button", { type: "button", clase: "boton-enlace", style: "padding:0" }, [icono("refresh"), "Empezar de nuevo"]);
+  const boton = el("button", { type: "button", clase: "boton-enlace" }, [icono("refresh"), "Empezar de nuevo"]);
   let confirmar = false;
   boton.addEventListener("click", () => {
     if (!confirmar) {
@@ -270,7 +265,8 @@ function mostrarRestauracion(p, estado, avisos) {
     location.href = location.pathname + location.search;
   });
   const texto = `Lleva ${porcentaje} % avanzado.${r.descartados ? ` ${r.descartados} ${r.descartados === 1 ? "pregunta cambió" : "preguntas cambiaron"} y debe${r.descartados === 1 ? "" : "n"} responderse de nuevo.` : ""}`;
-  avisos.append(aviso("aviso--acento", "check-circle", "Bienvenido de nuevo.", texto, el("div", { style: "margin-top:6px" }, boton)));
+  const continuar = el("button", { type: "button", clase: "boton", dataset: { nav: "empezar" } }, [el("span", { texto: "Continuar donde lo dejé" }), icono("arrow")]);
+  avisos.append(aviso("aviso--acento", "check-circle", "Qué bueno verle de nuevo.", texto, el("div", { clase: "aviso__acciones" }, [continuar, boton])));
 }
 
 let temporizadorGuardado;
@@ -345,7 +341,9 @@ function conectarFirma(p, experto, estado, f, notificacion) {
       f.error.hidden = false;
     } finally {
       f.generar.disabled = false;
-      f.generar.lastChild.textContent = "Generar mi certificado (PDF)";
+      // Con el certificado listo, la acción principal pasa a ser enviarlo.
+      f.generar.classList.toggle("boton--secundario", !!resultado);
+      f.generar.lastChild.textContent = resultado ? "Volver a generar el certificado" : "Generar mi certificado (PDF)";
     }
   });
 }
@@ -375,7 +373,7 @@ function mostrarExito(p, f, resultado, notificacion) {
   const primerNombre = (c.nombre || "").split(" ")[0];
   const mensaje = `Hola${primerNombre ? `, ${primerNombre}` : ""}. Le envío mi certificado de validez de contenido firmado (${resultado.archivo}).`;
   const blob = () => resultado.doc.output("blob");
-  const compartir = el("button", { type: "button", clase: "boton boton--whatsapp" }, [icono("whatsapp"), "Enviar por WhatsApp"]);
+  const compartir = el("button", { type: "button", clase: "boton boton--grande boton--whatsapp" }, [icono("whatsapp"), "Enviarlo por WhatsApp"]);
   compartir.addEventListener("click", async () => {
     const archivo = new File([blob()], resultado.archivo, { type: "application/pdf" });
     if (navigator.canShare?.({ files: [archivo] })) {
@@ -389,19 +387,21 @@ function mostrarExito(p, f, resultado, notificacion) {
   const correo = el("a", {
     clase: "boton boton--secundario",
     href: `mailto:${c.correo}?subject=${encodeURIComponent("Certificado de validez de contenido firmado")}&body=${encodeURIComponent(`${mensaje}\n\n(Adjunte el PDF descargado.)`)}`,
-  }, [icono("mail"), "Enviar por correo"]);
-  const ver = el("button", { type: "button", clase: "boton boton--secundario" }, [icono("eye"), "Ver PDF"]);
+  }, [icono("mail"), c.whatsapp ? "Prefiero enviarlo por correo" : "Enviarlo por correo"]);
+  const ver = el("button", { type: "button", clase: "boton-enlace" }, [icono("eye"), "Ver el PDF"]);
   ver.addEventListener("click", () => window.open(URL.createObjectURL(blob()), "_blank", "noopener"));
-  const descargar = el("button", { type: "button", clase: "boton boton--secundario" }, [icono("download"), "Descargar de nuevo"]);
+  const descargar = el("button", { type: "button", clase: "boton-enlace" }, [icono("download"), "Descargarlo de nuevo"]);
   descargar.addEventListener("click", () => resultado.doc.save(resultado.archivo));
 
   f.exito.replaceChildren(
     el("div", { clase: "exito__icono" }, [icono("check")]),
     el("h3", { texto: "¡Listo! Su certificado está firmado" }),
-    el("p", { texto: `Se descargó en su dispositivo. Para terminar, envíelo a ${c.nombre || "el investigador"}.` }),
+    el("p", { texto: `Se descargó en su dispositivo. Último paso: envíemelo${c.whatsapp ? " por WhatsApp" : ""} para continuar con el trámite en la universidad.` }),
+    el("div", { clase: "exito__acciones" }, [c.whatsapp ? compartir : null, c.correo ? correo : null]),
     el("span", { clase: "exito__archivo" }, [icono("file"), resultado.archivo]),
-    el("div", { clase: "botones" }, [c.whatsapp ? compartir : null, c.correo ? correo : null, ver, descargar]),
-    el("p", { clase: "exito__pie", texto: `Código de verificación: ${resultado.registro.codigo}. Si el archivo no se adjunta solo, búsquelo en «Descargas» (o «Archivos» en iPhone). ¡Muchas gracias por su apoyo!` }),
+    el("div", { clase: "exito__extra" }, [ver, descargar]),
+    el("p", { clase: "exito__pie", texto: `Si el archivo no se adjunta solo, búsquelo en «Descargas» (o «Archivos» en iPhone). Código de verificación: ${resultado.registro.codigo}.` }),
+    el("p", { clase: "exito__gracias", texto: "¡Muchas gracias por su apoyo!" }),
   );
   f.exito.hidden = false;
   f.exito.scrollIntoView({ behavior: "smooth", block: "center" });

@@ -1,0 +1,9 @@
+/* Impresión: solo el contenido de la pantalla actual, sin controles de navegación. */
+
+.barra-superior, .navegacion, .notificacion, .pie, .item__alternar, .firma__herramientas, #generar, .inicio__accion, .exito__acciones, .exito__extra {
+  display: none !important;
+}
+body { background: #fff; color: #000; }
+.flujo { max-width: none; padding: 0; }
+.item, .suficiencia, .ficha, .opcion-tarjeta { box-shadow: none; break-inside: avoid; }
+.desplegable > :not(summary) { display: block !important; }

@@ -74,4 +74,4 @@ Cuando lleguen los certificados, guárdalos **fuera del repositorio público** y
 
 - No subas al repositorio certificados firmados, DNI ni datos personales de los expertos más allá de su nombre y grado: el repositorio es público.
 - Si cambias el texto de un ítem cuando un experto ya empezó, la página descarta solo las respuestas de ese ítem (compara una huella del texto) y le avisa que debe evaluarlo de nuevo.
-- GitHub Pages guarda los archivos en caché unos 10 minutos. Si cambias el código, sube también el número de `?v=` en `index.html` (`app.css?v=…`, `main.js?v=…`); `proyecto.json` siempre se pide sin caché.
+- GitHub Pages guarda los archivos en caché unos 10 minutos. Si cambias el código, sube también el número de `?v=` en `index.html` (todas las hojas `assets/css/*.css?v=…` y `main.js?v=…`); `proyecto.json` siempre se pide sin caché.

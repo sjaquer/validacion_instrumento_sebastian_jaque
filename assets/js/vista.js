@@ -1,9 +1,9 @@
 // Construcción de la interfaz como un recorrido guiado de pantallas:
 //   Bienvenida → una pantalla por dimensión → Opinión final → Firma.
 // Cada pantalla tiene una sola acción principal; la información de apoyo
-// (definiciones, carta, PDF) aparece solo donde se necesita.
+// (definiciones, expediente en PDF) aparece solo donde se necesita.
 
-import { el, icono, md, plano, rellenar, fechaCarta } from "./util.js";
+import { el, icono, md, plano, rellenar, fechaIso, DIAS, MESES } from "./util.js";
 
 const conHtml = (etiqueta, atributos, texto) => el(etiqueta, { ...atributos, html: md(texto) });
 const archivoDocumento = (doc, experto) => (experto ? rellenar(doc.archivo, { clave: experto.clave }) : doc.archivo_general || null);
@@ -35,51 +35,71 @@ function navegacion({ textoSiguiente = null, estado = null } = {}) {
 }
 
 /* ------------------------------------------------------------- Bienvenida */
+const saludoSegunHora = (hora = new Date().getHours()) => (hora >= 5 && hora < 12 ? "Buenos días" : hora >= 12 && hora < 19 ? "Buenas tardes" : "Buenas noches");
+
 export function pantallaInicio(p, experto, avisos) {
-  const inv = p.investigacion;
-  const inst = p.institucion || {};
   const doc = (p.documentos || []).map(d => ({ ...d, url: archivoDocumento(d, experto) })).find(d => d.url);
-  const saludo = experto ? `${experto.tratamiento || "Estimado(a)"} ${experto.grado} ${experto.nombre}:` : "Estimado(a) docente:";
   const n = p.items.length;
+  const limite = fechaIso(p.fecha_limite);
+  const criterios = p.evaluacion.criterios.map(c => c.nombre.toLowerCase()).join(", ").replace(/, ([^,]*)$/, " y $1");
+  const escalaMin = p.evaluacion.escala.find(e => e.polo === "bajo")?.etiqueta || "No";
 
   const boton = el("button", { type: "button", clase: "boton boton--grande", id: "boton-empezar", dataset: { nav: "empezar" } }, [el("span", { texto: "Empezar la revisión" }), icono("arrow")]);
 
+  const pasos = [
+    ["Revise las preguntas", `En cada una marque Sí o No según su ${criterios}. Si marca ${escalaMin}, puede sugerir un cambio.`],
+    ["Dé su opinión final", "Indique si el cuestionario se puede aplicar."],
+    ["Firme en pantalla", "Con el dedo o el mouse. Se genera su certificado en PDF."],
+    [p.contacto?.whatsapp ? "Envíemelo por WhatsApp" : "Envíemelo", "Así continúo con el trámite en la universidad."],
+  ];
+
   const nodo = el("section", { clase: "pantalla pantalla--inicio", "aria-labelledby": "titulo-inicio" }, [
     avisos,
-    el("p", { clase: "inicio__saludo", texto: saludo }),
-    el("h1", { clase: "pantalla__titulo inicio__titulo", id: "titulo-inicio", tabindex: "-1", texto: `Le pido revisar las ${n} preguntas de mi cuestionario de tesis` }),
-    el("p", { clase: "inicio__texto", texto: "En cada pregunta solo marca Sí o No en tres aspectos. Al final firma en pantalla y se descarga su certificado." }),
-    el("ol", { clase: "inicio__pasos" }, [
-      ["Revisar las preguntas", "unos 15 minutos"],
-      ["Dar su opinión final", null],
-      ["Firmar y descargar el certificado", null],
-    ].map(([t, s]) => el("li", {}, [el("strong", { texto: t }), s ? el("span", { texto: ` · ${s}` }) : null]))),
-    el("div", { clase: "inicio__accion" }, [
-      boton,
-      el("p", { clase: "nota-suave", texto: "Su avance se guarda en este dispositivo: puede salir y continuar después." }),
+    el("header", {}, [
+      el("h1", { clase: "pantalla__titulo inicio__titulo", id: "titulo-inicio", tabindex: "-1" }, [
+        el("span", { clase: "inicio__saludo", texto: `${saludoSegunHora()},` }),
+        experto ? `${experto.grado} ${experto.nombre}` : "estimado(a) docente",
+      ]),
+      el("p", { clase: "inicio__texto", texto: "Gracias por aceptar validar el cuestionario de mi tesis. En esta página puede revisarlo y firmar su certificado, desde el celular o la computadora." }),
+      el("ul", { clase: "inicio__datos", "aria-label": "Resumen de la revisión" }, [
+        el("li", {}, [icono("list"), `${n} preguntas`]),
+        el("li", {}, [icono("clock"), `Unos ${p.evaluacion.minutos || 15} minutos`]),
+        limite ? el("li", {}, [icono("calendar"), `Hasta el ${DIAS[limite.getDay()]} ${limite.getDate()} de ${MESES[limite.getMonth()]}`]) : null,
+      ]),
     ]),
-    el("div", { clase: "inicio__secundario" }, [
-      el("details", { clase: "desplegable" }, [el("summary", {}, [icono("mail"), el("span", { texto: "Leer la carta de presentación" })]), carta(p, experto)]),
-      doc ? el("a", { clase: "enlace-secundario", href: p.base + doc.url, target: "_blank", rel: "noopener" }, [icono("download"), el("span", { texto: "Descargar el expediente en PDF" })]) : null,
-    ]),
-    el("p", { clase: "inicio__tesis" }, [
-      el("em", { texto: `«${plano(inv.titulo)}»` }), el("br"),
-      `${inv.autor}${inst.siglas ? ` · ${inst.siglas}` : ""}`,
+    fichaTesis(p, doc),
+    el("section", { clase: "inicio__como", "aria-labelledby": "titulo-como" }, [
+      el("h2", { clase: "inicio__subtitulo", id: "titulo-como", texto: "Cómo funciona" }),
+      el("ol", { clase: "inicio__pasos" }, pasos.map(([t, d]) => el("li", {}, [el("strong", { texto: t }), el("span", { texto: d })]))),
+      el("div", { clase: "inicio__accion" }, [
+        boton,
+        el("p", { clase: "nota-suave", texto: "Su avance se guarda en este dispositivo: puede salir y continuar después." }),
+      ]),
     ]),
   ]);
   return { nodo, boton };
 }
 
-function carta(p, experto) {
-  const c = p.carta || {};
-  const inst = p.institucion || {};
-  return el("article", { clase: "carta" }, [
-    el("p", { clase: "carta__fecha", texto: `${inst.ciudad || "Lima"}, ${fechaCarta(new Date())}` }),
-    el("p", { clase: "carta__destinatario", html: experto ? `<strong>${md(experto.grado)}</strong> ${md(experto.nombre)}<br>Presente.` : "<strong>Mg./Dr.</strong> ______________________<br>Presente." }),
-    c.asunto ? el("p", { clase: "carta__asunto", html: `<strong>Asunto:</strong> ${md(c.asunto)}` }) : null,
-    ...(c.parrafos || []).map(t => el("p", { html: md(rellenar(t, { area: "su especialidad" })) })),
-    c.cierre ? el("p", { html: md(c.cierre) }) : null,
-    el("div", { clase: "carta__firma" }, [el("strong", { texto: c.firma || p.investigacion.autor }), el("span", { texto: "Investigador" })]),
+// Lo que el experto necesita de la tesis para juzgar el cuestionario.
+function fichaTesis(p, doc) {
+  const inv = p.investigacion;
+  const dato = (titulo, valor) => (valor ? el("div", {}, [el("dt", { texto: titulo }), el("dd", { texto: valor })]) : null);
+  const items = d => rangoItems(d).replace(/^Preguntas? /, "").replace(" a ", "–");
+  return el("article", { clase: "ficha", "aria-labelledby": "titulo-ficha" }, [
+    el("p", { clase: "pantalla__kicker", texto: "Mi tesis" }),
+    el("h2", { clase: "ficha__titulo", id: "titulo-ficha", texto: plano(inv.titulo) }),
+    el("dl", { clase: "ficha__datos" }, [
+      dato("Enfoque y diseño", inv.enfoque),
+      dato("Instrumento", inv.instrumento),
+      dato("Asesor", inv.asesor),
+    ]),
+    el("h3", { clase: "ficha__subtitulo", texto: "Qué mide el cuestionario" }),
+    el("div", { clase: "ficha__variables" }, p.variables.map(v => el("section", { clase: "variable", "aria-label": v.nombre }, [
+      el("p", { clase: "variable__rol", texto: `Variable ${v.numero ?? ""}`.trim() }),
+      el("h4", { texto: v.nombre }),
+      el("ul", {}, v.dimensiones.map(d => el("li", {}, [el("strong", { texto: d.nombre }), el("span", { texto: `Ítems ${items(d)}` })]))),
+    ]))),
+    doc ? el("a", { clase: "boton-enlace ficha__documento", href: p.base + doc.url, target: "_blank", rel: "noopener" }, [icono("download"), "Expediente completo en PDF (definiciones y matriz)"]) : null,
   ]);
 }
 
@@ -130,8 +150,9 @@ function tarjetaItem(p, estado, it) {
     }
   };
 
-  const criterios = el("div", { clase: "item__criterios", style: `--n-criterios:${ev.criterios.length}` }, ev.criterios.map(c => el("fieldset", { clase: "criterio" }, [
-    el("legend", {}, [el("span", { clase: "criterio__nombre", texto: c.nombre })]),
+  // El nombre visible es decorativo: el grupo Sí/No ya se anuncia como «Pertinencia de la pregunta N».
+  const criterios = el("div", { clase: "item__criterios" }, ev.criterios.map(c => el("div", { clase: "criterio" }, [
+    el("span", { clase: "criterio__nombre", "aria-hidden": "true", texto: c.nombre }),
     segmento(`item-${it.numero}-${c.clave}`, ev.escala, estado.respuesta(it, c.clave), `${c.nombre} de la pregunta ${it.numero}`, valor => { estado.responder(it, c.clave, valor); refrescar(); }),
   ])));
 
@@ -201,7 +222,8 @@ export function pantallaDimension(p, estado, v, d, indice, total) {
 
   const refrescar = () => {
     const hechos = d.items.filter(it => estado.itemCompleto(it)).length;
-    estadoTexto.textContent = hechos === d.items.length ? "Parte completa ✓" : `${hechos} de ${d.items.length} respondidas`;
+    const completa = estado.dimensionCompleta(d);
+    estadoTexto.textContent = completa ? "Parte completa ✓" : `${hechos} de ${d.items.length} respondidas`;
   };
   return { nodo, refrescar };
 }
@@ -234,14 +256,34 @@ export function pantallaOpinion(p, estado, fraccion) {
   obs.value = estado.datos.observaciones;
   obs.addEventListener("input", () => estado.fijar("observaciones", obs.value));
 
-  return el("section", { clase: "pantalla", "aria-labelledby": "titulo-opinion" }, [
+  // Resumen de lo marcado, para decidir la opinión final con la evaluación a la vista.
+  const resumen = el("p", { clase: "resumen-evaluacion" });
+  const etiquetaMin = ev.escala.find(e => e.valor === ev.rango.min)?.etiqueta || "No";
+  const refrescar = () => {
+    const observados = p.items.filter(it => estado.itemObservado(it)).map(it => it.numero);
+    const respondidos = p.items.filter(it => estado.itemCompleto(it)).length;
+    resumen.replaceChildren(
+      icono(observados.length ? "edit" : "check-circle"),
+      el("span", {}, [
+        el("strong", { texto: `Revisó ${respondidos} de ${p.items.length} preguntas. ` }),
+        observados.length
+          ? `Marcó «${etiquetaMin}» en ${observados.length === 1 ? "la pregunta" : `${observados.length} preguntas:`} ${observados.join(", ").replace(/, (\d+)$/, " y $1")}.`
+          : `No marcó «${etiquetaMin}» en ninguna.`,
+      ]),
+    );
+  };
+  refrescar();
+
+  const nodo = el("section", { clase: "pantalla", "aria-labelledby": "titulo-opinion" }, [
     cabeceraPaso({ paso: 2, nombre: "Opinión final", fraccion }),
     el("h2", { clase: "pantalla__titulo", id: "titulo-opinion", tabindex: "-1", texto: "En general, ¿el cuestionario se puede aplicar?" }),
+    resumen,
     opciones,
     el("label", { clase: "campo__etiqueta etiqueta-bloque", for: "observaciones", texto: "Comentarios generales (opcional)" }),
     obs,
     navegacion({ textoSiguiente: "Continuar a la firma" }),
   ]);
+  return { nodo, refrescar };
 }
 
 /* ------------------------------------------------------------------ Firma */
@@ -320,8 +362,9 @@ export function pantallaFirma(p, estado, experto) {
 export function pie(p) {
   const c = p.contacto || {};
   return el("footer", { clase: "pie" }, el("div", { clase: "pie__marco" }, [
-    el("p", {}, [el("strong", { texto: "¿Alguna duda? " }), `Escriba a ${c.nombre || p.investigacion.autor}`,
+    el("p", {}, [el("strong", { texto: "¿Alguna duda? " }), "Escríbame",
       c.whatsapp ? [" por ", el("a", { href: `https://wa.me/${c.whatsapp}`, target: "_blank", rel: "noopener", texto: "WhatsApp" })] : "",
-      c.correo ? [" o a ", el("a", { href: `mailto:${c.correo}`, texto: c.correo })] : "", "."].flat()),
+      c.correo ? [c.whatsapp ? " o a " : " a ", el("a", { href: `mailto:${c.correo}`, texto: c.correo })] : "", "."].flat()),
+    el("p", { clase: "pie__firma", texto: `${c.nombre || p.investigacion.autor}${p.institucion?.siglas ? ` · ${p.institucion.siglas}` : ""}` }),
   ]));
 }
