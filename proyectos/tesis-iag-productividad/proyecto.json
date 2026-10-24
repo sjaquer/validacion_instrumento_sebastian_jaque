@@ -31,19 +31,13 @@
     "correo": "sjaquer@outlook.es"
   },
   "carta": {
-    "asunto": "VALIDACIÓN DE INSTRUMENTOS A TRAVÉS DE JUICIO DE EXPERTO",
+    "asunto": "Invitación a validación de instrumento de investigación por juicio de expertos",
     "parrafos": [
-      "Es muy grato comunicarme con usted para expresarle mi saludo y, asimismo, hacer de su conocimiento que, siendo estudiante del Programa Académico de Administración y Negocios Internacionales de la Universidad Privada Norbert Wiener, requiero validar el instrumento con el cual recogeré la información necesaria para desarrollar mi investigación, con la cual optaré el Título Profesional de Licenciado en Administración y Negocios Internacionales.",
-      "El título de mi proyecto de investigación es: *\"Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026\"*, y siendo imprescindible contar con la aprobación de docentes especializados para aplicar el instrumento en mención, he considerado conveniente recurrir a usted, ante su connotada experiencia en temas de {area}."
+      "Estimado(a) docente: Es muy grato saludarle. Me dirijo a usted para solicitar su valioso juicio profesional como experto(a) en la validación del cuestionario correspondiente a mi tesis: *\"Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026\"*.",
+      "Considerando su destacada trayectoria en {area}, su evaluación de los 24 ítems bajo los criterios de **pertinencia, relevancia y claridad** asegurará el rigor metodológico del estudio. Puede revisar las variables, matriz y cuestionario en las pestañas superiores de este expediente.",
+      "Agradezco de antemano el valioso tiempo que dispense a esta colaboración académica."
     ],
-    "contenido_titulo": "El expediente de validación que le hago llegar contiene:",
-    "contenido": [
-      "Carta de presentación",
-      "Definiciones conceptuales de las variables y dimensiones",
-      "Matriz de operacionalización de las variables",
-      "Certificado de validez de contenido del instrumento"
-    ],
-    "cierre": "Expresándole los sentimientos de respeto y consideración, me despido de usted, no sin antes agradecer por la atención que dispense a la presente.",
+    "cierre": "Con sentimientos de consideración y estima académica,",
     "firma": "Sebastián Emiliano Jaque Reategui"
   },
   "documentos": [
@@ -60,17 +54,17 @@
       {
         "clave": "p",
         "nombre": "Pertinencia",
-        "definicion": "el ítem corresponde al concepto teórico formulado."
+        "definicion": "El ítem corresponde al concepto teórico evaluado."
       },
       {
         "clave": "r",
         "nombre": "Relevancia",
-        "definicion": "el ítem es apropiado para representar al componente o dimensión específica del constructo."
+        "definicion": "El ítem es importante para representar la dimensión."
       },
       {
         "clave": "c",
         "nombre": "Claridad",
-        "definicion": "se entiende sin dificultad alguna el enunciado del ítem; es conciso, exacto y directo."
+        "definicion": "El enunciado es comprensible, exacto y directo."
       }
     ],
     "escala": [
@@ -85,7 +79,7 @@
     ],
     "suficiencia": {
       "activa": true,
-      "definicion": "se dice que hay suficiencia cuando los ítems planteados son suficientes para medir la dimensión."
+      "definicion": "¿Considera que los ítems planteados son suficientes para medir esta dimensión?"
     },
     "aplicabilidad": [
       "Aplicable",

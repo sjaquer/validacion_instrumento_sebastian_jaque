@@ -68,8 +68,9 @@ export function portada(p, experto) {
     ]),
     el("ul", { clase: "invitacion__lista" }, lista),
     el("div", { clase: "botones" }, [
-      el("a", { clase: "boton boton--grande", href: "#evaluacion" }, ["Comenzar evaluación", icono("arrow")]),
-      docPrincipal ? el("a", { clase: "boton boton--secundario", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "Ver expediente (PDF)"]) : null,
+      el("button", { type: "button", clase: "boton boton--grande", dataset: { irPaso: "2" } }, ["Comenzar evaluación (Paso 2)", icono("arrow")]),
+      el("button", { type: "button", clase: "boton boton--secundario", dataset: { irPaso: "1" } }, [icono("file"), "Revisar expediente"]),
+      docPrincipal ? el("a", { clase: "boton boton--suave", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "PDF"]) : null,
     ]),
   ]);
 
@@ -129,10 +130,70 @@ function cabeceraSeccion(numero, titulo, entrada) {
   ]);
 }
 
+/* ----------------------------------------------------------------- Pasos */
+export function barraPasos() {
+  const pasos = [
+    { paso: 1, id: "expediente", label: "1. Expediente", icono: "file" },
+    { paso: 2, id: "evaluacion", label: "2. Evaluación (24 ítems)", icono: "list" },
+    { paso: 3, id: "valoracion", label: "3. Valoración", icono: "scale" },
+    { paso: 4, id: "firma-envio", label: "4. Firma y Envío", icono: "sign" },
+  ];
+
+  const botones = pasos.map(p => el("button", {
+    type: "button",
+    clase: `paso-barra ${p.paso === 1 ? "activo" : ""}`,
+    dataset: { irPaso: String(p.paso), seccion: p.id },
+    "aria-current": p.paso === 1 ? "step" : "false",
+  }, [
+    el("span", { clase: "paso-barra__num", texto: String(p.paso) }),
+    el("span", { clase: "paso-barra__texto", texto: p.label }),
+    el("span", { clase: "paso-barra__check", "aria-hidden": "true" }, [icono("check")]),
+  ]));
+
+  const nodo = el("nav", { clase: "barra-pasos tarjeta", "aria-label": "Pasos de la evaluación" }, botones);
+
+  return {
+    nodo,
+    actualizar: (pasoActual, { hechas = 0, total = 24, aplicabilidad = false, firmaValida = false } = {}) => {
+      botones.forEach((b, idx) => {
+        const num = idx + 1;
+        const esActivo = num === pasoActual;
+        b.classList.toggle("activo", esActivo);
+        b.setAttribute("aria-current", esActivo ? "step" : "false");
+        if (num === 2) {
+          b.querySelector(".paso-barra__texto").textContent = `2. Evaluación (${hechas}/${total})`;
+          b.classList.toggle("completo", hechas === total && total > 0);
+        }
+        if (num === 3) b.classList.toggle("completo", !!aplicabilidad);
+        if (num === 4) b.classList.toggle("completo", !!firmaValida);
+      });
+    }
+  };
+}
+
+export function barraNavegacionPaso({ anterior, siguiente }) {
+  const hijos = [];
+  if (anterior) {
+    hijos.push(el("button", {
+      type: "button",
+      clase: "boton boton--secundario boton-paso",
+      dataset: { irPaso: String(anterior.paso) },
+    }, ["← ", anterior.texto]));
+  }
+  if (siguiente) {
+    hijos.push(el("button", {
+      type: "button",
+      clase: "boton boton--grande boton-paso boton-paso--siguiente",
+      dataset: { irPaso: String(siguiente.paso) },
+    }, [siguiente.texto, " →"]));
+  }
+  return el("div", { clase: "acciones-paso" }, hijos);
+}
+
 /* ------------------------------------------------------- 1. Expediente */
 export function seccionExpediente(p, experto) {
   const paneles = [
-    { id: "carta", titulo: "Carta", icono: "mail", cuerpo: () => carta(p, experto) },
+    { id: "carta", titulo: "Carta oficial", icono: "mail", cuerpo: () => carta(p, experto) },
     { id: "variables", titulo: "Variables", icono: "layers", cuerpo: () => definiciones(p) },
     { id: "matriz", titulo: "Matriz", icono: "list", cuerpo: () => matriz(p) },
     p.cuestionario ? { id: "cuestionario", titulo: "Cuestionario", icono: "file", cuerpo: () => cuestionario(p.cuestionario) } : null,
@@ -169,9 +230,13 @@ export function seccionExpediente(p, experto) {
     activar(botones[(i + mover + botones.length) % botones.length]);
   });
 
+  const navPaso = barraNavegacionPaso({
+    siguiente: { paso: 2, texto: "Continuar al Paso 2: Evaluar los 24 ítems" }
+  });
+
   const documentos = p.documentos.map(d => ({ ...d, url: archivoDocumento(d, experto) })).filter(d => d.url);
   return el("section", { clase: "seccion", id: "expediente", "aria-labelledby": "titulo-seccion-1" }, [
-    cabeceraSeccion(1, "Expediente de validación", "Todo el expediente está en esta página. Revise cada pestaña antes de evaluar; si lo prefiere, descargue la versión en PDF."),
+    cabeceraSeccion(1, "Expediente de validación", "Revise las definiciones y la estructura del instrumento. Puede consultar cualquier pestaña antes o durante su evaluación."),
     lista,
     contenedor,
     documentos.length ? el("div", { clase: "documentos" }, documentos.map(d => el("a", { clase: "documento-enlace tarjeta", href: p.base + d.url, target: "_blank", rel: "noopener" }, [
@@ -179,6 +244,7 @@ export function seccionExpediente(p, experto) {
       el("span", {}, [el("strong", { texto: d.titulo }), d.descripcion ? el("span", { texto: d.descripcion }) : null]),
       icono("download"),
     ]))) : null,
+    navPaso,
   ]);
 }
 
@@ -298,22 +364,38 @@ function tarjetaItem(p, estado, it) {
   const etiquetaMin = ev.escala.find(e => e.valor === ev.rango.min)?.etiqueta || String(ev.rango.min);
   const nodo = el("article", { clase: "item", id: `item-${it.numero}`, "aria-labelledby": `texto-item-${it.numero}` });
   const aviso = el("p", { clase: "item__aviso", hidden: true }, [icono("alert"), el("span")]);
-  const area = el("textarea", { clase: "control", id: `sugerencia-${it.numero}`, rows: "3", maxlength: "600", placeholder: "Por ejemplo, una redacción alternativa del ítem o el motivo de su observación" });
+  const area = el("textarea", { clase: "control", id: `sugerencia-${it.numero}`, rows: "3", maxlength: "600", placeholder: "Escriba una observación o propuesta de mejora para este ítem (opcional)" });
   area.value = estado.datos.sugerencias[it.numero] || "";
   const contador = el("span", { clase: "contador" });
-  const caja = el("div", { clase: "sugerencia", hidden: !area.value }, [
+  
+  const caja = el("div", { clase: "sugerencia tarjeta", hidden: !area.value }, [
     el("label", { clase: "visualmente-oculto", for: area.id, texto: `Sugerencia para el ítem ${it.numero}` }),
-    area,
-    el("div", { clase: "sugerencia__acciones" }, [
-      el("button", { type: "button", clase: "boton-enlace", on: { click: () => { if (!area.value.trim()) { area.value = it.texto; area.dispatchEvent(new Event("input")); } area.focus(); } } }, [icono("edit"), "Partir del texto actual"]),
+    el("div", { clase: "sugerencia__cabecera" }, [
+      el("strong", { texto: "Observación / Sugerencia de mejora" }),
       contador,
     ]),
+    area,
+    el("div", { clase: "sugerencia__acciones" }, [
+      el("button", { type: "button", clase: "boton boton--secundario boton--chico", on: { click: () => { if (!area.value.trim()) { area.value = it.texto; area.dispatchEvent(new Event("input")); } area.focus(); } } }, [icono("edit"), "Usar texto original como base"]),
+      el("button", { type: "button", clase: "boton boton--secundario boton--chico", on: { click: () => { area.value = ""; area.dispatchEvent(new Event("input")); } } }, [icono("trash"), "Borrar sugerencia"]),
+    ]),
   ]);
-  const alternar = el("button", { type: "button", clase: "boton-enlace", "aria-controls": `sugerencia-${it.numero}` }, [icono("edit"), ""]);
+
+  const alternar = el("button", { type: "button", clase: "boton-sugerencia", "aria-controls": `sugerencia-${it.numero}` }, [
+    icono("edit"),
+    el("span", { texto: "Agregar comentario / sugerencia (opcional)" }),
+  ]);
   const mostrarCaja = visible => {
     caja.hidden = !visible;
     alternar.setAttribute("aria-expanded", String(visible));
-    alternar.lastChild.textContent = visible ? "Ocultar sugerencia" : area.value.trim() ? "Ver sugerencia" : "Agregar sugerencia (opcional)";
+    alternar.classList.toggle("activo", visible);
+    alternar.classList.toggle("con-sugerencia", !!area.value.trim());
+    const textoBoton = visible
+      ? "Ocultar caja de comentarios"
+      : area.value.trim()
+        ? "Ver / editar sugerencia registrada ✓"
+        : "Agregar sugerencia / observación (opcional)";
+    alternar.querySelector("span").textContent = textoBoton;
   };
   mostrarCaja(!caja.hidden);
   alternar.addEventListener("click", () => {
@@ -321,7 +403,12 @@ function tarjetaItem(p, estado, it) {
     if (!caja.hidden) area.focus();
   });
   const contar = () => { contador.textContent = `${area.value.length}/600`; };
-  area.addEventListener("input", () => { estado.sugerir(it, area.value); contar(); refrescar(); });
+  area.addEventListener("input", () => {
+    estado.sugerir(it, area.value);
+    contar();
+    refrescar();
+    alternar.classList.toggle("con-sugerencia", !!area.value.trim());
+  });
   contar();
 
   let abiertaPorObservacion = false;
@@ -334,13 +421,22 @@ function tarjetaItem(p, estado, it) {
     const conMin = ev.criterios.filter(c => estado.respuesta(it, c.clave) === ev.rango.min).map(c => c.nombre.toLowerCase());
     aviso.hidden = !conMin.length;
     if (conMin.length) {
-      aviso.lastChild.textContent = `Marcó «${etiquetaMin}» en ${conMin.join(" y ")}. ${area.value.trim() ? "Gracias por su sugerencia." : "Le agradeceremos indicar cómo mejorar el ítem."}`;
+      aviso.lastChild.textContent = `Marcó «${etiquetaMin}» en ${conMin.join(" y ")}. ${area.value.trim() ? "Gracias por su sugerencia registrada." : "Le agradeceremos indicar cómo mejorar este ítem."}`;
       if (!abiertaPorObservacion && caja.hidden) { mostrarCaja(true); abiertaPorObservacion = true; }
     }
   };
 
+  const subtitulos = {
+    "p": "Ajuste teórico",
+    "r": "Importancia",
+    "c": "Comprensión",
+  };
+
   const criterios = el("div", { clase: "item__criterios", style: `--n-criterios:${ev.criterios.length}` }, ev.criterios.map(c => el("fieldset", { clase: "criterio" }, [
-    el("legend", { texto: c.nombre }),
+    el("legend", {}, [
+      el("span", { clase: "criterio__nombre", texto: c.nombre }),
+      subtitulos[c.clave] ? el("span", { clase: "criterio__sub", texto: ` · ${subtitulos[c.clave]}` }) : null,
+    ]),
     segmento(`item-${it.numero}-${c.clave}`, ev.escala, estado.respuesta(it, c.clave), `${c.nombre} del ítem ${it.numero}`, valor => { estado.responder(it, c.clave, valor); refrescar(); }),
   ])));
 
@@ -387,11 +483,21 @@ function bloqueSuficiencia(p, estado, d) {
 
 export function seccionEvaluacion(p, estado) {
   const ev = p.evaluacion;
-  const escalaTexto = ev.escala.map(e => e.etiqueta).join(" / ");
-  const criterios = el("div", { clase: "criterios" }, ev.criterios.map((c, i) => el("article", { clase: "criterio-ficha tarjeta" }, [
-    el("span", { clase: "criterio-ficha__marca", texto: String(i + 1) }),
-    el("div", {}, [el("h3", { texto: c.nombre }), el("p", { texto: capitalizar(c.definicion) })]),
-  ])));
+  const guiaCriterios = el("details", { clase: "guia-criterios tarjeta" }, [
+    el("summary", { clase: "guia-criterios__resumen" }, [
+      el("span", { clase: "guia-criterios__icono" }, [icono("info")]),
+      el("div", { clase: "guia-criterios__texto" }, [
+        el("strong", { texto: "Criterios a evaluar en cada ítem: " }),
+        el("span", { texto: "1. Pertinencia (ajuste teórico) · 2. Relevancia (importancia) · 3. Claridad (redacción)" }),
+      ]),
+      el("span", { clase: "guia-criterios__abrir", texto: "Ver definiciones" }),
+      icono("chevron"),
+    ]),
+    el("div", { clase: "guia-criterios__detalle" }, ev.criterios.map(c => el("div", { clase: "guia-criterio-item" }, [
+      el("strong", { texto: `${c.nombre}: ` }),
+      el("span", { texto: c.definicion }),
+    ]))),
+  ]);
 
   const refrescos = [];
   const variables = p.variables.map(v => {
@@ -434,13 +540,42 @@ export function seccionEvaluacion(p, estado) {
     ]);
   });
 
+  const botonesDim = [
+    el("button", { type: "button", clase: "filtro-dim activo", dataset: { dimFiltro: "todas" } }, ["Todos los ítems (24)"]),
+    ...p.dimensiones.map(d => el("button", { type: "button", clase: "filtro-dim", dataset: { dimFiltro: String(d.numero) } }, [`D${d.numero}: ${d.nombre}`]))
+  ];
+  const barraFiltros = el("div", { clase: "barra-filtros-dim tarjeta", role: "tablist", "aria-label": "Filtrar por dimensión" }, botonesDim);
+  barraFiltros.addEventListener("click", e => {
+    const btn = e.target.closest(".filtro-dim");
+    if (!btn) return;
+    botonesDim.forEach(b => b.classList.toggle("activo", b === btn));
+    const target = btn.dataset.dimFiltro;
+    variables.forEach(v => {
+      let visibles = 0;
+      for (const d of v.querySelectorAll(".dimension")) {
+        const idDim = d.id.replace("dimension-", "");
+        const mostrar = target === "todas" || target === idDim;
+        d.hidden = !mostrar;
+        if (mostrar) visibles++;
+      }
+      v.hidden = visibles === 0;
+    });
+  });
+
+  const navPasoEval = barraNavegacionPaso({
+    anterior: { paso: 1, texto: "Paso 1: Expediente" },
+    siguiente: { paso: 3, texto: "Continuar al Paso 3: Valoración Global" }
+  });
+
   const nodo = el("section", { clase: "seccion", id: "evaluacion", "aria-labelledby": "titulo-seccion-2" }, [
-    cabeceraSeccion(2, "Evaluación de los ítems", `Lea cada enunciado y marque Sí o No en los tres criterios (Pertinencia, Relevancia y Claridad). Si marca No en alguno, podrá ingresar una sugerencia de mejora si lo desea.`),
-    criterios,
+    cabeceraSeccion(2, "Evaluación de los 24 ítems", "Lea cada pregunta y marque con un toque Sí o No en los tres criterios. Puede filtrar por dimensión o revisar los 24 ítems seguidos."),
+    barraFiltros,
+    guiaCriterios,
     ev.suficiencia.activa && ev.suficiencia.definicion
       ? el("div", { clase: "aviso" }, [icono("info"), el("p", { html: `<strong>Suficiencia:</strong> ${md(ev.suficiencia.definicion)} Se evalúa al final de cada dimensión.` })])
       : null,
     ...variables,
+    navPasoEval,
   ]);
   return { nodo, refrescar: () => refrescos.forEach(f => f()) };
 }
@@ -511,6 +646,11 @@ export function seccionValoracion(p, estado) {
     el("span", { texto: `Cada punto: ${ev.criterios.map(c => c.nombre.toLowerCase()).join(", ")}` }),
   ]);
 
+  const navPasoVal = barraNavegacionPaso({
+    anterior: { paso: 2, texto: "Paso 2: Volver a Evaluación" },
+    siguiente: { paso: 4, texto: "Continuar al Paso 4: Firma y Certificado" }
+  });
+
   const nodo = el("section", { clase: "seccion", id: "valoracion", "aria-labelledby": "titulo-seccion-3" }, [
     cabeceraSeccion(3, "Valoración global", "Indique su opinión sobre la aplicabilidad del instrumento y, si lo desea, agregue observaciones generales."),
     el("h3", { clase: "panel-tarjeta__titulo", texto: "Opinión de aplicabilidad", style: "margin-bottom:12px" }),
@@ -525,6 +665,7 @@ export function seccionValoracion(p, estado) {
       el("p", { clase: "panel-tarjeta__entrada", texto: "Toque un ítem para revisarlo." }),
       cifras, mapa, leyenda,
     ]),
+    navPasoVal,
   ]);
   return { nodo, refrescar };
 }
@@ -581,6 +722,10 @@ export function seccionFirma(p, estado, experto) {
   const generar = el("button", { type: "button", clase: "boton boton--grande boton--bloque", id: "generar" }, [icono("file"), "Generar certificado firmado (PDF)"]);
   const exito = el("div", { clase: "exito tarjeta", id: "exito", hidden: true, tabindex: "-1" });
 
+  const navPasoFirma = barraNavegacionPaso({
+    anterior: { paso: 3, texto: "Paso 3: Volver a Valoración" }
+  });
+
   const nodo = el("section", { clase: "seccion", id: "firma-envio", "aria-labelledby": "titulo-seccion-4" }, [
     cabeceraSeccion(4, "Datos del validador y firma", "Con estos datos se completa el certificado de validez de contenido. El documento de identidad solo aparece en el PDF."),
     el("div", { clase: "panel-tarjeta tarjeta" }, [
@@ -604,6 +749,7 @@ export function seccionFirma(p, estado, experto) {
       el("p", { clase: "campo__ayuda", style: "text-align:center; margin:10px 0 0", texto: "El PDF se genera en su dispositivo y se descarga de inmediato." }),
       faltantes, error,
     ]),
+    navPasoFirma,
     exito,
   ]);
   return { nodo, lienzo, recuadro, subir, generar, faltantes, error, exito, etiquetaDeclaracion };

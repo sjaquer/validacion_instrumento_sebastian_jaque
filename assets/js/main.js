@@ -142,15 +142,64 @@ function mostrarError(e) {
 /* ------------------------------------------------------------------------- */
 function montar(p, experto, estado, { claveDesconocida }) {
   const indice = vista.indice(p);
+  const pasoBarra = vista.barraPasos();
+  const secExpediente = vista.seccionExpediente(p, experto);
   const evaluacion = vista.seccionEvaluacion(p, estado);
   const valoracion = vista.seccionValoracion(p, estado);
   const firma = vista.seccionFirma(p, estado, experto);
-  const avisos = el("div", { clase: "avisos", style: "display:grid; gap:10px; padding-top:28px" });
+  const avisos = el("div", { clase: "avisos", style: "display:grid; gap:12px; padding-top:20px" });
+
+  const secciones = [secExpediente, evaluacion.nodo, valoracion.nodo, firma.nodo];
+
+  // Determinar paso inicial según el hash
+  const hash = location.hash.replace("#", "");
+  let pasoActual = 1;
+  if (hash === "evaluacion" || hash.startsWith("dimension-") || hash.startsWith("item-")) {
+    pasoActual = 2;
+  } else if (hash === "valoracion") {
+    pasoActual = 3;
+  } else if (hash === "firma-envio") {
+    pasoActual = 4;
+  }
+
+  function fijarPaso(nuevoPaso, scroll = true) {
+    pasoActual = Math.max(1, Math.min(4, nuevoPaso));
+    secciones.forEach((sec, idx) => {
+      sec.hidden = (idx + 1) !== pasoActual;
+    });
+
+    const secPortada = $("#inicio");
+    if (secPortada) {
+      secPortada.hidden = pasoActual !== 1;
+    }
+
+    const { hechas, total } = estado.avance();
+    pasoBarra.actualizar(pasoActual, {
+      hechas,
+      total,
+      aplicabilidad: !!estado.datos.aplicabilidad,
+      firmaValida: !estado.pendientes().length,
+    });
+
+    actualizarProgreso(p, estado);
+
+    // Actualizar enlace activo en el índice lateral
+    const idsSeccion = ["expediente", "evaluacion", "valoracion", "firma-envio"];
+    $$(".indice a.activo").forEach(a => a.classList.remove("activo"));
+    $(`.indice a[data-seccion="${idsSeccion[pasoActual - 1]}"]`)?.classList.add("activo");
+
+    const nombresHash = ["expediente", "evaluacion", "valoracion", "firma-envio"];
+    history.replaceState(null, "", `#${nombresHash[pasoActual - 1]}`);
+
+    if (scroll) {
+      window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  }
 
   const contenido = el("main", { clase: "contenido", id: "contenido", tabindex: "-1" }, [
     avisos,
-    vista.pasos(p),
-    vista.seccionExpediente(p, experto),
+    pasoBarra.nodo,
+    secExpediente,
     evaluacion.nodo,
     valoracion.nodo,
     firma.nodo,
@@ -168,6 +217,8 @@ function montar(p, experto, estado, { claveDesconocida }) {
   );
   app.removeAttribute("aria-busy");
 
+  fijarPaso(pasoActual, false);
+
   if (p.estado === "cerrado") {
     document.body.classList.add("cerrado");
     avisos.append(aviso("aviso--aviso", "lock", "Esta validación ya cerró.", "La recepción de certificados terminó. Si necesita enviar el suyo, comuníquese con el investigador."));
@@ -177,16 +228,38 @@ function montar(p, experto, estado, { claveDesconocida }) {
   }
   mostrarRestauracion(p, estado, avisos);
 
-  const refrescar = () => { evaluacion.refrescar(); valoracion.refrescar(); actualizarProgreso(p, estado); };
+  const refrescar = () => {
+    evaluacion.refrescar();
+    valoracion.refrescar();
+    actualizarProgreso(p, estado);
+    const { hechas, total } = estado.avance();
+    pasoBarra.actualizar(pasoActual, {
+      hechas,
+      total,
+      aplicabilidad: !!estado.datos.aplicabilidad,
+      firmaValida: !estado.pendientes().length,
+    });
+  };
   estado.alCambiar(evento => {
     if (evento.tipo === "cambio") refrescar();
     if (evento.tipo === "guardado") indicarGuardado(evento.ok);
   });
   refrescar();
 
-  conectarIndice(indice, fondo);
-  conectarSeguimiento(p);
-  conectarSiguiente(estado);
+  // Escuchar clics en botones con data-ir-paso
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("[data-ir-paso]");
+    if (btn) {
+      const pNum = parseInt(btn.dataset.irPaso, 10);
+      if (pNum >= 1 && pNum <= 4) {
+        fijarPaso(pNum, true);
+      }
+    }
+  });
+
+  conectarIndice(indice, fondo, fijarPaso);
+  conectarSeguimiento(p, fijarPaso);
+  conectarSiguiente(estado, fijarPaso);
   conectarFirma(p, experto, estado, firma, notificacion);
 }
 
@@ -257,7 +330,7 @@ function actualizarProgreso(p, estado) {
 }
 
 /* ------------------------------------------------------------ Navegación */
-function conectarIndice(indice, fondo) {
+function conectarIndice(indice, fondo, fijarPaso) {
   const abrir = $("#abrir-indice");
   const pantallaChica = () => window.matchMedia("(max-width: 1079px)").matches;
   const fijar = abierto => {
@@ -270,30 +343,24 @@ function conectarIndice(indice, fondo) {
   abrir.addEventListener("click", () => fijar(true));
   fondo.addEventListener("click", () => fijar(false));
   indice.addEventListener("click", e => {
+    const a = e.target.closest("a");
+    if (a) {
+      const sec = a.dataset.seccion;
+      const dim = a.dataset.dimension;
+      if (sec === "expediente") fijarPaso(1, true);
+      else if (sec === "evaluacion" || dim) {
+        fijarPaso(2, false);
+        if (dim) setTimeout(() => irA(`dimension-${dim}`), 60);
+      } else if (sec === "valoracion") fijarPaso(3, true);
+      else if (sec === "firma-envio") fijarPaso(4, true);
+    }
     if (e.target.closest("[data-cerrar-indice]") || (e.target.closest("a, [data-siguiente]") && pantallaChica())) fijar(false);
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && indice.classList.contains("abierto")) { fijar(false); abrir.focus(); } });
 }
 
-/** Resalta en el índice la sección o dimensión visible. */
+/** Resalta en el índice la sección visible y oculta la barra inferior en portada. */
 function conectarSeguimiento(p) {
-  const objetivos = [
-    ...["expediente", "evaluacion", "valoracion", "firma-envio"].map(id => ({ nodo: document.getElementById(id), enlace: $(`.indice a[data-seccion="${id}"]`) })),
-    ...p.dimensiones.map(d => ({ nodo: document.getElementById(`dimension-${d.numero}`), enlace: $(`.indice a[data-dimension="${d.numero}"]`), padre: $('.indice a[data-seccion="evaluacion"]') })),
-  ];
-  const visibles = new Map();
-  const observador = new IntersectionObserver(entradas => {
-    for (const e of entradas) visibles.set(e.target, e.isIntersecting ? e.boundingClientRect.top : null);
-    const actual = objetivos.filter(o => visibles.get(o.nodo) !== null && visibles.get(o.nodo) !== undefined)
-      .sort((a, b) => (b.padre ? 1 : 0) - (a.padre ? 1 : 0) || visibles.get(a.nodo) - visibles.get(b.nodo))[0];
-    if (!actual) return;
-    $$(".indice a.activo").forEach(a => a.classList.remove("activo"));
-    actual.enlace.classList.add("activo");
-    actual.padre?.classList.add("activo");
-  }, { rootMargin: "-30% 0px -55% 0px" });
-  objetivos.forEach(o => o.nodo && observador.observe(o.nodo));
-
-  // La barra inferior se oculta mientras se ve la portada.
   const barra = $("#barra-movil");
   const portada = $("#inicio");
   new IntersectionObserver(([e]) => barra.classList.toggle("oculta", e.isIntersecting), { threshold: 0.35 }).observe(portada);
@@ -313,12 +380,23 @@ function irA(id) {
   }
 }
 
-function conectarSiguiente(estado) {
+function conectarSiguiente(estado, fijarPaso) {
   document.addEventListener("click", e => {
     if (!e.target.closest("[data-siguiente]")) return;
     const siguiente = estado.siguientePendiente();
-    if (siguiente) irA(siguiente.id);
-    else { irA("generar"); setTimeout(() => $("#generar").focus({ preventScroll: true }), 450); }
+    if (siguiente) {
+      if (siguiente.grupo === "items" || siguiente.grupo === "suficiencia") {
+        fijarPaso(2, false);
+      } else if (siguiente.grupo === "aplicabilidad") {
+        fijarPaso(3, false);
+      } else {
+        fijarPaso(4, false);
+      }
+      setTimeout(() => irA(siguiente.id), 80);
+    } else {
+      fijarPaso(4, false);
+      setTimeout(() => { irA("generar"); $("#generar")?.focus({ preventScroll: true }); }, 80);
+    }
   });
 }
 
