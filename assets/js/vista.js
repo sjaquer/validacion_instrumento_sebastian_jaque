@@ -11,66 +11,44 @@ const conHtml = (etiqueta, atributos, texto) => el(etiqueta, { ...atributos, htm
 const archivoDocumento = (doc, experto) => (experto ? rellenar(doc.archivo, { clave: experto.clave }) : doc.archivo_general || null);
 
 /* ---------------------------------------------------------------- Portada */
+/* ---------------------------------------------------------------- Portada */
 export function portada(p, experto) {
   const inv = p.investigacion;
-  const ev = p.evaluacion;
-  const meta = [
-    ["Investigador", inv.autor],
-    ["Asesor", inv.asesor],
-    ["Programa académico", p.institucion?.programa],
-    ["Línea de investigación", inv.linea],
-    ["Enfoque metodológico", inv.enfoque],
-    ["Tipo de instrumento", inv.instrumento],
-  ].filter(([, v]) => v);
-
-  const destacados = [
-    { icono: "clock", titulo: `~${ev.minutos} min`, desc: "Tiempo estimado" },
-    { icono: "file", titulo: `${p.items.length} ítems`, desc: "Marque Sí o No" },
-    { icono: "shield", titulo: "Autoguardado", desc: "No pierde su avance" },
-    { icono: "sign", titulo: "Firma digital", desc: "Certificado en PDF" },
-  ];
-
-  const detallesAcademicos = el("details", { clase: "meta-caja" }, [
-    el("summary", {}, [
-      el("span", { texto: "📋 Ver información académica del proyecto de tesis" }),
-      icono("chevron"),
-    ]),
-    el("dl", { clase: "meta" }, meta.map(([k, v]) => el("div", {}, [el("dt", { texto: k }), el("dd", { texto: v })]))),
-  ]);
-
-  const texto = el("div", { clase: "portada__texto" }, [
-    el("p", { clase: "sobretitulo", texto: "Validación por Juicio de Expertos" }),
-    el("h1", { clase: "portada__titulo", id: "titulo-portada", texto: plano(inv.titulo) }),
-    el("p", { clase: "portada__tipo", texto: "Agradecemos su valiosa colaboración académica evaluando la pertinencia, relevancia y claridad de los ítems de este instrumento." }),
-    detallesAcademicos,
-    el("div", { clase: "destacados-evaluacion" }, destacados.map(d => el("div", { clase: "destacado-pildora" }, [
-      icono(d.icono),
-      el("div", {}, [el("strong", { texto: d.titulo }), el("span", { texto: d.desc })]),
-    ]))),
-  ]);
-
-  const limite = fechaIso(p.fecha_limite);
-  const lista = [
-    el("li", {}, [icono("clock"), el("span", { texto: `Evaluación rápida de 24 preguntas breves. Puede responder desde su celular, tablet o computadora.` })]),
-    limite ? el("li", {}, [icono("calendar"), el("span", { html: `Fecha sugerida de respuesta: <strong>${fechaLarga(limite)}</strong>.` })]) : null,
-    el("li", {}, [icono("shield"), el("span", { texto: "Sus respuestas se guardan automáticamente en este navegador; puede pausar y retomar cuando desee." })]),
-  ];
+  const inst = p.institucion || {};
   const docPrincipal = p.documentos.map(d => ({ ...d, url: archivoDocumento(d, experto) })).find(d => d.url);
 
-  const invitacion = el("aside", { clase: "invitacion tarjeta", "aria-label": "Invitación personal" }, [
-    el("p", { clase: "sobretitulo", texto: experto ? "Invitación personal" : "Invitación a validar" }),
-    el("div", { clase: "invitacion__cabecera" }, [
-      el("div", { clase: "avatar", "aria-hidden": "true", texto: experto ? iniciales(experto.nombre) : "" }, experto ? [] : [icono("sign")]),
+  const texto = el("div", { clase: "portada__texto" }, [
+    el("div", { clase: "portada__institucion" }, [
+      inst.logo ? el("img", { src: p.base + inst.logo, alt: inst.siglas || "", clase: "portada__logo" }) : null,
       el("div", {}, [
-        el("div", { clase: "invitacion__nombre", texto: experto ? `${experto.grado} ${experto.nombre}` : "Estimado(a) Docente / Experto(a)" }),
-        el("div", { clase: "invitacion__rol", texto: experto?.rol || "Juez validador del instrumento" }),
+        el("span", { clase: "portada__univ", texto: inst.nombre || "Universidad Privada Norbert Wiener" }),
+        el("span", { clase: "portada__facultad", texto: `${inst.unidad || "Facultad de Negocios"} · ${inst.programa || "Administración y Negocios Internacionales"}` }),
       ]),
     ]),
-    el("ul", { clase: "invitacion__lista" }, lista),
-    el("div", { clase: "botones" }, [
-      el("button", { type: "button", clase: "boton boton--grande", dataset: { irPaso: "2" } }, ["Comenzar evaluación (Paso 2)", icono("arrow")]),
-      el("button", { type: "button", clase: "boton boton--secundario", dataset: { irPaso: "1" } }, [icono("file"), "Revisar expediente"]),
-      docPrincipal ? el("a", { clase: "boton boton--suave", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "PDF"]) : null,
+    el("h1", { clase: "portada__titulo", id: "titulo-portada", texto: plano(inv.titulo) }),
+    el("div", { clase: "portada__meta-linea" }, [
+      el("span", { html: `<strong>Autor:</strong> ${inv.autor}` }),
+      inv.asesor ? el("span", { html: `<strong>Asesor:</strong> ${inv.asesor}` }) : null,
+      el("span", { html: `<strong>Línea:</strong> ${inv.linea || "Gestión estratégica"}` }),
+    ]),
+  ]);
+
+  const invitacion = el("aside", { clase: "invitacion-panel", "aria-label": "Invitación personal" }, [
+    el("div", { clase: "invitacion-panel__cabecera" }, [
+      el("span", { clase: "invitacion-panel__badge", texto: "Panel de Expertos · Validación de Contenido" }),
+      el("h2", { clase: "invitacion-panel__nombre", texto: experto ? `${experto.grado} ${experto.nombre}` : "Estimado(a) Docente / Experto(a)" }),
+      el("p", { clase: "invitacion-panel__rol", texto: experto?.rol || "Juez validador del instrumento" }),
+      experto?.especialidad ? el("p", { clase: "invitacion-panel__especialidad", texto: experto.especialidad }) : null,
+      experto?.foco ? el("div", { clase: "invitacion-panel__foco" }, [
+        el("strong", { texto: "Foco de evaluación: " }),
+        el("span", { texto: experto.foco }),
+      ]) : null,
+    ]),
+    el("p", { clase: "invitacion-panel__descripcion", texto: "Se solicita su dictamen profesional en 24 ítems bajo los criterios de pertinencia, relevancia y claridad para certificar el instrumento." }),
+    el("div", { clase: "invitacion-panel__acciones" }, [
+      el("button", { type: "button", clase: "boton boton--primario", dataset: { irPaso: "2" } }, ["Comenzar evaluación (Paso 2) →"]),
+      el("button", { type: "button", clase: "boton boton--secundario", dataset: { irPaso: "1" } }, ["Revisar expediente"]),
+      docPrincipal ? el("a", { clase: "boton boton--secundario", href: p.base + docPrincipal.url, target: "_blank", rel: "noopener" }, [icono("download"), "Descargar Expediente PDF"]) : null,
     ]),
   ]);
 
@@ -94,19 +72,26 @@ export function pasos(p) {
 
 /* ----------------------------------------------------------------- Índice */
 export function indice(p) {
-  const anillo = el("div", { clase: "anillo", "aria-hidden": "true", html: '<svg viewBox="0 0 56 56"><circle class="pista" cx="28" cy="28" r="24"/><circle class="valor" cx="28" cy="28" r="24"/></svg><span>0 %</span>' });
   const enlace = (href, num, texto, extra = {}) => el("a", { href, ...extra }, [num !== null ? el("span", { clase: "indice__num", texto: String(num) }) : null, el("span", { texto })]);
   const subDim = d => el("li", {}, [el("a", { href: `#dimension-${d.numero}`, clase: "indice__sub", dataset: { dimension: d.numero } }, [
     el("span", { texto: `D${d.numero}. ${d.nombre}` }), el("span", { clase: "indice__cuenta", texto: `0/${d.items.length}` }),
   ])]);
 
+  const anillo = el("div", { clase: "anillo corporate-progreso", "aria-hidden": "true" }, [
+    el("div", { clase: "corporate-barra" }, [el("div", { clase: "corporate-barra-fill" })]),
+    el("span", { texto: "0 %" }),
+  ]);
+
   const nodo = el("nav", { clase: "indice", id: "indice", "aria-label": "Índice de la validación" }, [
     el("button", { type: "button", clase: "boton-icono indice__cerrar", "aria-label": "Cerrar el índice", dataset: { cerrarIndice: "" } }, [icono("close")]),
-    el("div", { clase: "indice__progreso tarjeta" }, [
+    el("div", { clase: "indice__progreso-panel" }, [
+      el("div", { clase: "indice__progreso-header" }, [
+        el("strong", { texto: "Avance de respuestas", id: "indice-titulo-avance" }),
+        el("span", { id: "indice-texto-avance", texto: "0 de 24" }),
+      ]),
       anillo,
-      el("div", {}, [el("strong", { texto: "Su avance", id: "indice-titulo-avance" }), el("small", { id: "indice-texto-avance", texto: "" })]),
     ]),
-    el("p", { clase: "indice__titulo", texto: "Contenido" }),
+    el("p", { clase: "indice__titulo", texto: "Pasos del proceso" }),
     el("ol", {}, [
       el("li", { clase: "indice__grupo" }, [enlace("#expediente", 1, "Expediente", { dataset: { seccion: "expediente" } })]),
       el("li", { clase: "indice__grupo" }, [
@@ -114,10 +99,10 @@ export function indice(p) {
         el("ol", {}, p.dimensiones.map(subDim)),
       ]),
       el("li", { clase: "indice__grupo" }, [enlace("#valoracion", 3, "Valoración global", { dataset: { seccion: "valoracion" } })]),
-      el("li", { clase: "indice__grupo" }, [enlace("#firma-envio", 4, "Firma y envío", { dataset: { seccion: "firma-envio" } })]),
+      el("li", { clase: "indice__grupo" }, [enlace("#firma-envio", 4, "Firma y certificado", { dataset: { seccion: "firma-envio" } })]),
     ]),
-    el("button", { type: "button", clase: "boton boton--suave boton--bloque", style: "margin-top:16px", dataset: { siguiente: "" } }, ["Ir al siguiente pendiente", icono("arrow")]),
-    el("div", { clase: "indice__pie" }, [icono("lock"), el("span", { texto: "Sus respuestas no se envían a ningún servidor: el PDF se genera en su propio dispositivo." })]),
+    el("button", { type: "button", clase: "boton boton--secundario boton--bloque", style: "margin-top:16px", dataset: { siguiente: "" } }, ["Ir al siguiente pendiente", icono("arrow")]),
+    el("div", { clase: "indice__pie" }, [icono("lock"), el("span", { texto: "Certificado generado localmente en su dispositivo." })]),
   ]);
   return nodo;
 }
@@ -133,10 +118,10 @@ function cabeceraSeccion(numero, titulo, entrada) {
 /* ----------------------------------------------------------------- Pasos */
 export function barraPasos() {
   const pasos = [
-    { paso: 1, id: "expediente", label: "1. Expediente", icono: "file" },
-    { paso: 2, id: "evaluacion", label: "2. Evaluación (24 ítems)", icono: "list" },
-    { paso: 3, id: "valoracion", label: "3. Valoración", icono: "scale" },
-    { paso: 4, id: "firma-envio", label: "4. Firma y Envío", icono: "sign" },
+    { paso: 1, id: "expediente", label: "Paso 1: Expediente" },
+    { paso: 2, id: "evaluacion", label: "Paso 2: Evaluación (24 ítems)" },
+    { paso: 3, id: "valoracion", label: "Paso 3: Valoración" },
+    { paso: 4, id: "firma-envio", label: "Paso 4: Firma y Certificado" },
   ];
 
   const botones = pasos.map(p => el("button", {
@@ -150,7 +135,7 @@ export function barraPasos() {
     el("span", { clase: "paso-barra__check", "aria-hidden": "true" }, [icono("check")]),
   ]));
 
-  const nodo = el("nav", { clase: "barra-pasos tarjeta", "aria-label": "Pasos de la evaluación" }, botones);
+  const nodo = el("nav", { clase: "barra-pasos", "aria-label": "Pasos de la evaluación" }, botones);
 
   return {
     nodo,
@@ -239,7 +224,7 @@ export function seccionExpediente(p, experto) {
     cabeceraSeccion(1, "Expediente de validación", "Revise las definiciones y la estructura del instrumento. Puede consultar cualquier pestaña antes o durante su evaluación."),
     lista,
     contenedor,
-    documentos.length ? el("div", { clase: "documentos" }, documentos.map(d => el("a", { clase: "documento-enlace tarjeta", href: p.base + d.url, target: "_blank", rel: "noopener" }, [
+    documentos.length ? el("div", { clase: "documentos" }, documentos.map(d => el("a", { clase: "documento-enlace", href: p.base + d.url, target: "_blank", rel: "noopener" }, [
       el("span", { clase: "documento-enlace__icono" }, [icono("file")]),
       el("span", {}, [el("strong", { texto: d.titulo }), d.descripcion ? el("span", { texto: d.descripcion }) : null]),
       icono("download"),
@@ -251,9 +236,9 @@ export function seccionExpediente(p, experto) {
 function carta(p, experto) {
   const c = p.carta || {};
   const hoy = new Date();
-  const area = experto?.area || "______________________________";
+  const area = experto?.area || "su especialidad";
   const inst = p.institucion || {};
-  return el("article", { clase: "documento tarjeta" }, [el("div", { clase: "carta" }, [
+  return el("article", { clase: "documento-carta" }, [el("div", { clase: "carta" }, [
     el("div", { clase: "carta__membrete" }, [
       inst.logo ? el("img", { src: p.base + inst.logo, alt: inst.nombre || "", loading: "lazy" }) : el("span"),
       el("div", { html: [inst.nombre, inst.unidad, inst.programa].filter(Boolean).map(x => md(x)).join("<br>") }),
@@ -264,24 +249,24 @@ function carta(p, experto) {
       : "<strong>Mg./Dr.</strong> ______________________<br><strong>Presente.</strong>" }),
     c.asunto ? el("p", { clase: "carta__asunto", html: `<strong>Asunto:</strong> ${md(c.asunto)}` }) : null,
     ...(c.parrafos || []).map(t => el("p", { html: md(rellenar(t, { area })) })),
-    c.contenido_titulo ? el("p", { html: md(c.contenido_titulo) }) : null,
-    c.contenido?.length ? el("ul", {}, c.contenido.map(x => el("li", { html: md(x) }))) : null,
     c.cierre ? el("p", { html: md(c.cierre) }) : null,
     el("div", { clase: "carta__firma" }, [
       el("p", { texto: "Atentamente,", style: "margin-bottom:.4em" }),
       el("strong", { texto: c.firma || p.investigacion.autor }),
-      el("span", { texto: p.investigacion.tipo ? "Investigador" : "" }),
+      el("span", { texto: "Investigador" }),
     ]),
   ])]);
 }
 
 function definiciones(p) {
-  return el("div", { clase: "definiciones" }, p.variables.map(v => el("article", { clase: "variable-ficha tarjeta" }, [
-    el("span", { clase: "chip chip--acento", texto: `Variable ${v.numero}` }),
-    el("h3", { texto: v.nombre }),
-    conHtml("p", {}, v.definicion),
-    el("div", { clase: "dim-ficha" }, v.dimensiones.map(d => el("article", {}, [
-      el("h4", { texto: `Dimensión ${d.numero}: ${d.nombre}` }),
+  return el("div", { clase: "definiciones" }, p.variables.map(v => el("section", { clase: "variable-bloque" }, [
+    el("div", { clase: "variable-bloque__cabecera" }, [
+      el("span", { clase: "variable-bloque__badge", texto: `Variable ${v.numero}` }),
+      el("h3", { texto: v.nombre }),
+      conHtml("p", { clase: "variable-bloque__desc" }, v.definicion),
+    ]),
+    el("div", { clase: "dimensiones-lista" }, v.dimensiones.map(d => el("div", { clase: "dimension-item" }, [
+      el("strong", { texto: `Dimensión ${d.numero}: ${d.nombre}` }),
       conHtml("p", {}, d.definicion),
     ]))),
   ])));
@@ -298,11 +283,10 @@ function matriz(p) {
         el("td", { clase: "tabla__items", texto: `${(ind.items || []).length === 1 ? "Ítem" : "Ítems"} ${(ind.items || []).join(", ")}` }),
       ])));
     }
-    return el("article", { clase: "matriz__variable tarjeta" }, [
+    return el("div", { clase: "matriz__variable-bloque" }, [
       el("div", { clase: "matriz__cabecera" }, [
-        el("h3", { texto: `V${v.numero}: ${v.nombre}` }),
-        el("div", { clase: "matriz__datos" }, [v.escala ? el("span", { clase: "chip", texto: v.escala }) : null, el("span", { clase: "chip", texto: `${v.dimensiones.reduce((n, d) => n + d.items.length, 0)} ítems` })]),
-        v.niveles?.length ? el("ul", { clase: "matriz__niveles" }, v.niveles.map(n => el("li", { texto: `Niveles y rangos · ${n}` }))) : null,
+        el("h3", { texto: `Variable ${v.numero}: ${v.nombre}` }),
+        el("p", { clase: "matriz__meta", texto: `${v.escala || "Escala Likert"} · ${v.dimensiones.reduce((n, d) => n + d.items.length, 0)} ítems` }),
       ]),
       el("table", { clase: "tabla" }, [
         el("thead", {}, el("tr", {}, [el("th", { scope: "col", texto: "Dimensión" }), el("th", { scope: "col", texto: "Indicador" }), el("th", { scope: "col", texto: "Ítems", style: "text-align:right" })])),
@@ -336,7 +320,7 @@ function cuestionario(c) {
     }
     return el("div", { clase: "vista-cuestionario__bloque" }, hijos);
   });
-  return el("article", { clase: "vista-cuestionario tarjeta" }, [
+  return el("article", { clase: "vista-cuestionario" }, [
     el("p", { clase: "sobretitulo", texto: "Vista previa · así lo verán los participantes", style: "text-align:center" }),
     el("h3", { clase: "vista-cuestionario__titulo", texto: c.titulo }),
     c.presentacion ? conHtml("p", { style: "font-size:.93rem; color:var(--tinta-2)" }, c.presentacion) : null,
@@ -368,9 +352,9 @@ function tarjetaItem(p, estado, it) {
   area.value = estado.datos.sugerencias[it.numero] || "";
   const contador = el("span", { clase: "contador" });
   
-  const caja = el("div", { clase: "sugerencia tarjeta", hidden: !area.value }, [
+  const caja = el("div", { clase: "sugerencia-caja", hidden: !area.value }, [
     el("label", { clase: "visualmente-oculto", for: area.id, texto: `Sugerencia para el ítem ${it.numero}` }),
-    el("div", { clase: "sugerencia__cabecera" }, [
+    el("div", { clase: "sugerencia-caja__cabecera" }, [
       el("strong", { texto: "Observación / Sugerencia de mejora" }),
       contador,
     ]),
@@ -483,12 +467,12 @@ function bloqueSuficiencia(p, estado, d) {
 
 export function seccionEvaluacion(p, estado) {
   const ev = p.evaluacion;
-  const guiaCriterios = el("details", { clase: "guia-criterios tarjeta" }, [
+  const guiaCriterios = el("details", { clase: "guia-criterios" }, [
     el("summary", { clase: "guia-criterios__resumen" }, [
       el("span", { clase: "guia-criterios__icono" }, [icono("info")]),
       el("div", { clase: "guia-criterios__texto" }, [
         el("strong", { texto: "Criterios a evaluar en cada ítem: " }),
-        el("span", { texto: "1. Pertinencia (ajuste teórico) · 2. Relevancia (importancia) · 3. Claridad (redacción)" }),
+        el("span", { texto: "1. Pertinencia (ajuste conceptual) · 2. Relevancia (importancia) · 3. Claridad (comprensión)" }),
       ]),
       el("span", { clase: "guia-criterios__abrir", texto: "Ver definiciones" }),
       icono("chevron"),
@@ -502,18 +486,17 @@ export function seccionEvaluacion(p, estado) {
   const refrescos = [];
   const variables = p.variables.map(v => {
     const dims = v.dimensiones.map(d => {
-      const barra = el("span");
       const cuenta = el("span", { texto: `0/${d.items.length}` });
-      const tarjeta = el("section", { clase: "dimension tarjeta", id: `dimension-${d.numero}`, "aria-labelledby": `titulo-dimension-${d.numero}` }, [
-        el("header", { clase: "dimension__cabecera" }, [
-          el("p", { clase: "sobretitulo", texto: `Dimensión ${d.numero} · ${rangoItems(d)}`, style: "margin-bottom:4px" }),
-          el("div", { clase: "dimension__fila" }, [
-            el("h4", { id: `titulo-dimension-${d.numero}`, texto: d.nombre }),
-            el("span", { clase: "dimension__avance" }, [el("span", { clase: "mini-barra", "aria-hidden": "true" }, barra), cuenta]),
+      const bloque = el("section", { clase: "dimension dimension-bloque", id: `dimension-${d.numero}`, "aria-labelledby": `titulo-dimension-${d.numero}` }, [
+        el("header", { clase: "dimension-bloque__cabecera" }, [
+          el("div", {}, [
+            el("span", { clase: "dimension-bloque__sub", texto: `Dimensión ${d.numero} · ${rangoItems(d)}` }),
+            el("h3", { id: `titulo-dimension-${d.numero}`, texto: d.nombre }),
           ]),
+          el("span", { clase: "dimension-bloque__avance" }, [cuenta, " ítems calificados"]),
         ]),
-        el("div", { clase: "dimension__contexto" }, el("details", { clase: "desplegable" }, [
-          el("summary", {}, [el("span", { texto: "Definición e indicadores" }), icono("chevron")]),
+        el("div", { clase: "dimension-bloque__contexto" }, el("details", { clase: "desplegable-simple" }, [
+          el("summary", {}, [el("span", { texto: "Definición e indicadores de la dimensión" }), icono("chevron")]),
           el("div", { clase: "contenido-desplegable" }, [
             conHtml("p", {}, d.definicion),
             d.indicadores?.length ? el("ul", {}, d.indicadores.map(i => el("li", { texto: `${i.nombre} (${(i.items || []).length === 1 ? "ítem" : "ítems"} ${(i.items || []).join(", ")})` }))) : null,
@@ -524,15 +507,14 @@ export function seccionEvaluacion(p, estado) {
       ]);
       refrescos.push(() => {
         const hechos = d.items.filter(it => estado.itemCompleto(it)).length;
-        barra.style.width = `${(100 * hechos) / d.items.length}%`;
         cuenta.textContent = `${hechos}/${d.items.length}`;
-        tarjeta.classList.toggle("completa", estado.dimensionCompleta(d));
+        bloque.classList.toggle("completa", estado.dimensionCompleta(d));
       });
-      return tarjeta;
+      return bloque;
     });
     return el("div", { clase: "variable" }, [
       el("header", { clase: "variable__cabecera" }, [
-        el("p", { clase: "sobretitulo", texto: `Variable ${v.numero}` }),
+        el("span", { clase: "variable__num", texto: `Variable ${v.numero}` }),
         el("h3", { texto: v.nombre }),
         conHtml("p", {}, v.definicion),
       ]),
@@ -544,7 +526,7 @@ export function seccionEvaluacion(p, estado) {
     el("button", { type: "button", clase: "filtro-dim activo", dataset: { dimFiltro: "todas" } }, ["Todos los ítems (24)"]),
     ...p.dimensiones.map(d => el("button", { type: "button", clase: "filtro-dim", dataset: { dimFiltro: String(d.numero) } }, [`D${d.numero}: ${d.nombre}`]))
   ];
-  const barraFiltros = el("div", { clase: "barra-filtros-dim tarjeta", role: "tablist", "aria-label": "Filtrar por dimensión" }, botonesDim);
+  const barraFiltros = el("div", { clase: "barra-filtros-dim", role: "tablist", "aria-label": "Filtrar por dimensión" }, botonesDim);
   barraFiltros.addEventListener("click", e => {
     const btn = e.target.closest(".filtro-dim");
     if (!btn) return;
@@ -552,7 +534,7 @@ export function seccionEvaluacion(p, estado) {
     const target = btn.dataset.dimFiltro;
     variables.forEach(v => {
       let visibles = 0;
-      for (const d of v.querySelectorAll(".dimension")) {
+      for (const d of v.querySelectorAll(".dimension-bloque, .dimension")) {
         const idDim = d.id.replace("dimension-", "");
         const mostrar = target === "todas" || target === idDim;
         d.hidden = !mostrar;
@@ -590,14 +572,14 @@ const DESCRIPCIONES_APLICABILIDAD = {
 export function seccionValoracion(p, estado) {
   const ev = p.evaluacion;
   const tonos = ["ok", "aviso", "mal"];
-  const iconos = ["check-circle", "edit", "x-circle"];
+  const iconos = ["check", "alert", "close"];
   const opciones = el("div", { clase: "opciones-tarjeta", id: "aplicabilidad", role: "radiogroup", "aria-label": "Opinión de aplicabilidad" });
   ev.aplicabilidad.forEach((op, i) => {
     const t = ev.aplicabilidad.length === 3 ? i : Math.round((i * 2) / Math.max(1, ev.aplicabilidad.length - 1));
     const input = el("input", { type: "radio", name: "aplicabilidad", value: op });
     input.checked = estado.datos.aplicabilidad === op;
     input.addEventListener("change", () => { estado.fijar("aplicabilidad", op); opciones.classList.remove("falta"); });
-    opciones.append(el("label", { clase: `opcion-tarjeta tarjeta opcion-tarjeta--${tonos[t]}` }, [
+    opciones.append(el("label", { clase: `opcion-tarjeta opcion-tarjeta--${tonos[t]}` }, [
       input,
       el("span", { clase: "opcion-tarjeta__icono" }, [icono(iconos[t])]),
       el("span", {}, [el("strong", { texto: op }), DESCRIPCIONES_APLICABILIDAD[op] ? el("small", { texto: DESCRIPCIONES_APLICABILIDAD[op] }) : null]),
@@ -653,16 +635,16 @@ export function seccionValoracion(p, estado) {
 
   const nodo = el("section", { clase: "seccion", id: "valoracion", "aria-labelledby": "titulo-seccion-3" }, [
     cabeceraSeccion(3, "Valoración global", "Indique su opinión sobre la aplicabilidad del instrumento y, si lo desea, agregue observaciones generales."),
-    el("h3", { clase: "panel-tarjeta__titulo", texto: "Opinión de aplicabilidad", style: "margin-bottom:12px" }),
+    el("h3", { clase: "panel-bloque__titulo", texto: "Opinión de aplicabilidad", style: "margin-bottom:12px" }),
     opciones,
-    el("div", { clase: "panel-tarjeta tarjeta" }, [
-      el("label", { clase: "panel-tarjeta__titulo", for: "observaciones", texto: "Observaciones generales", style: "display:block" }),
-      el("p", { clase: "panel-tarjeta__entrada", texto: "Opcional. Aparecerán en el certificado junto con la suficiencia de cada dimensión." }),
+    el("div", { clase: "panel-bloque" }, [
+      el("label", { clase: "panel-bloque__titulo", for: "observaciones", texto: "Observaciones generales", style: "display:block" }),
+      el("p", { clase: "panel-bloque__entrada", texto: "Opcional. Aparecerán en el certificado junto con la suficiencia de cada dimensión." }),
       obs, contador,
     ]),
-    el("div", { clase: "panel-tarjeta tarjeta" }, [
-      el("h3", { clase: "panel-tarjeta__titulo", texto: "Resumen de su evaluación" }),
-      el("p", { clase: "panel-tarjeta__entrada", texto: "Toque un ítem para revisarlo." }),
+    el("div", { clase: "panel-bloque" }, [
+      el("h3", { clase: "panel-bloque__titulo", texto: "Resumen de su evaluación" }),
+      el("p", { clase: "panel-bloque__entrada", texto: "Toque un ítem para revisarlo." }),
       cifras, mapa, leyenda,
     ]),
     navPasoVal,
@@ -728,9 +710,9 @@ export function seccionFirma(p, estado, experto) {
 
   const nodo = el("section", { clase: "seccion", id: "firma-envio", "aria-labelledby": "titulo-seccion-4" }, [
     cabeceraSeccion(4, "Datos del validador y firma", "Con estos datos se completa el certificado de validez de contenido. El documento de identidad solo aparece en el PDF."),
-    el("div", { clase: "panel-tarjeta tarjeta" }, [
-      el("h3", { clase: "panel-tarjeta__titulo", texto: "Datos del juez validador" }),
-      el("p", { clase: "panel-tarjeta__entrada", texto: experto ? "Precargamos sus datos; corríjalos si es necesario." : "Complete sus datos tal como deben figurar en el certificado." }),
+    el("div", { clase: "panel-bloque" }, [
+      el("h3", { clase: "panel-bloque__titulo", texto: "Datos del juez validador" }),
+      el("p", { clase: "panel-bloque__entrada", texto: experto ? "Precargamos sus datos; corríjalos si es necesario." : "Complete sus datos tal como deben figurar en el certificado." }),
       el("div", { clase: "rejilla-campos" }, [
         campo("campo-grado", "Grado académico", grado),
         campo("campo-documento", ev.documento_identidad.nombre, documento, "No se guarda fuera de su dispositivo."),
@@ -738,12 +720,12 @@ export function seccionFirma(p, estado, experto) {
         campo("campo-especialidad", "Especialidad", especialidad, null, true),
       ]),
     ]),
-    el("div", { clase: "panel-tarjeta tarjeta" }, [
-      el("h3", { clase: "panel-tarjeta__titulo", texto: "Firma" }),
-      el("p", { clase: "panel-tarjeta__entrada", texto: "Su firma se insertará en el certificado sobre la línea «" + p.certificado.etiqueta_firma + "»." }),
+    el("div", { clase: "panel-bloque" }, [
+      el("h3", { clase: "panel-bloque__titulo", texto: "Firma digital del evaluador" }),
+      el("p", { clase: "panel-bloque__entrada", texto: "Su firma se insertará en el certificado sobre la línea «" + p.certificado.etiqueta_firma + "»." }),
       recuadro, barra,
     ]),
-    el("div", { clase: "panel-tarjeta tarjeta" }, [
+    el("div", { clase: "panel-bloque" }, [
       etiquetaDeclaracion,
       el("div", { style: "margin-top:16px" }, [generar]),
       el("p", { clase: "campo__ayuda", style: "text-align:center; margin:10px 0 0", texto: "El PDF se genera en su dispositivo y se descarga de inmediato." }),

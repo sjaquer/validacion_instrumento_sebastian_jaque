@@ -167,7 +167,8 @@
           "tratamiento": { "type": "string" },
           "rol": { "type": "string" },
           "area": { "type": "string", "description": "Completa «experiencia en temas de {area}» de la carta." },
-          "especialidad": { "type": "string" }
+          "especialidad": { "type": "string" },
+          "foco": { "type": "string" }
         }
       }
     }

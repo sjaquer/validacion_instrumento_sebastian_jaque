@@ -597,27 +597,30 @@
       "grado": "Mg.",
       "nombre": "Sandro Antonio Vidaurrázaga Sferrazza",
       "tratamiento": "Estimado",
-      "rol": "Metodólogo",
+      "rol": "Validador Metodólogo",
       "area": "investigación de mercados y métodos cuantitativos",
-      "especialidad": "Investigación de mercados y métodos cuantitativos"
+      "especialidad": "Investigación de mercados y métodos cuantitativos. Maestro en Docencia Universitaria (UCV).",
+      "foco": "Coherencia de los 24 ítems con los objetivos e hipótesis, pertinencia de la escala Likert y suficiencia de la matriz."
     },
     {
       "clave": "pinedo",
       "grado": "Mg.",
       "nombre": "Lloy Pinedo",
       "tratamiento": "Estimado",
-      "rol": "Experto en TI e inteligencia artificial",
+      "rol": "Experto temático en TI e Inteligencia Artificial",
       "area": "tecnologías de la información e inteligencia artificial",
-      "especialidad": "Tecnologías de la información e inteligencia artificial"
+      "especialidad": "Tecnologías de la información e IA. Maestro en Ciencias con mención en TI (UNSM), Dr. (c) en TIC, investigador RENACYT nivel II y docente investigador en la UPNW.",
+      "foco": "Ítems de la Variable 1 (Frecuencia de uso y Nivel de dominio técnico de herramientas de IA generativa)."
     },
     {
       "clave": "cardenas",
       "grado": "Mg.",
       "nombre": "Ivette Cárdenas Marquina",
       "tratamiento": "Estimada",
-      "rol": "Experta en talento humano y marketing",
+      "rol": "Experta temática en Talento Humano y Marketing",
       "area": "gestión del talento humano y marketing",
-      "especialidad": "Gestión del talento humano y marketing"
+      "especialidad": "Gestión del talento humano y marketing. MBA CENTRUM PUCP, doctorado en RR. HH. en curso (Universidad de Lisboa). Gerente de Estrategia en ADSCreativa y exdirectora de Desarrollo Profesional y Alumni en la UPNW.",
+      "foco": "Ítems de la Variable 2 (Productividad laboral: eficiencia operativa y calidad de los entregables en agencias)."
     }
   ]
 }
