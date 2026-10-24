@@ -140,105 +140,91 @@ function mostrarError(e) {
 }
 
 /* ------------------------------------------------------------------------- */
+// Recorrido guiado: una pantalla visible a la vez.
+//   0 = bienvenida · 1..N = una por dimensión · N+1 = opinión final · N+2 = firma
+let mostrarPantallaDe = null;
+
 function montar(p, experto, estado, { claveDesconocida }) {
-  const indice = vista.indice(p);
-  const pasoBarra = vista.barraPasos();
-  const secExpediente = vista.seccionExpediente(p, experto);
-  const evaluacion = vista.seccionEvaluacion(p, estado);
-  const valoracion = vista.seccionValoracion(p, estado);
-  const firma = vista.seccionFirma(p, estado, experto);
-  const avisos = el("div", { clase: "avisos", style: "display:grid; gap:12px; padding-top:20px" });
+  const dims = p.variables.flatMap(v => v.dimensiones.map(d => ({ v, d })));
+  const total = dims.length;
+  const avisos = el("div", { clase: "avisos" });
 
-  const secciones = [secExpediente, evaluacion.nodo, valoracion.nodo, firma.nodo];
-
-  // Determinar paso inicial según el hash
-  const hash = location.hash.replace("#", "");
-  let pasoActual = 1;
-  if (hash === "evaluacion" || hash.startsWith("dimension-") || hash.startsWith("item-")) {
-    pasoActual = 2;
-  } else if (hash === "valoracion") {
-    pasoActual = 3;
-  } else if (hash === "firma-envio") {
-    pasoActual = 4;
-  }
-
-  function fijarPaso(nuevoPaso, scroll = true) {
-    pasoActual = Math.max(1, Math.min(4, nuevoPaso));
-    secciones.forEach((sec, idx) => {
-      sec.hidden = (idx + 1) !== pasoActual;
-    });
-
-    const secPortada = $("#inicio");
-    if (secPortada) {
-      secPortada.hidden = pasoActual !== 1;
-    }
-
-    const { hechas, total } = estado.avance();
-    pasoBarra.actualizar(pasoActual, {
-      hechas,
-      total,
-      aplicabilidad: !!estado.datos.aplicabilidad,
-      firmaValida: !estado.pendientes().length,
-    });
-
-    actualizarProgreso(p, estado);
-
-    // Actualizar enlace activo en el índice lateral
-    const idsSeccion = ["expediente", "evaluacion", "valoracion", "firma-envio"];
-    $$(".indice a.activo").forEach(a => a.classList.remove("activo"));
-    $(`.indice a[data-seccion="${idsSeccion[pasoActual - 1]}"]`)?.classList.add("activo");
-
-    const nombresHash = ["expediente", "evaluacion", "valoracion", "firma-envio"];
-    history.replaceState(null, "", `#${nombresHash[pasoActual - 1]}`);
-
-    if (scroll) {
-      window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    }
-  }
-
-  const contenido = el("main", { clase: "contenido", id: "contenido", tabindex: "-1" }, [
-    avisos,
-    pasoBarra.nodo,
-    secExpediente,
-    evaluacion.nodo,
-    valoracion.nodo,
-    firma.nodo,
-  ]);
-  const fondo = el("div", { clase: "fondo-cajon", "aria-hidden": "true" });
+  const inicio = vista.pantallaInicio(p, experto, avisos);
+  const revisiones = dims.map(({ v, d }, i) => vista.pantallaDimension(p, estado, v, d, i, total));
+  const opinion = vista.pantallaOpinion(p, estado, (total + 1) / (total + 2));
+  const firma = vista.pantallaFirma(p, estado, experto);
+  const pantallas = [inicio.nodo, ...revisiones.map(r => r.nodo), opinion, firma.nodo];
   const notificacion = el("div", { clase: "notificacion", role: "status", "aria-live": "polite" });
 
   app.replaceChildren(
-    vista.portada(p, experto),
-    el("div", { clase: "disposicion" }, [indice, contenido]),
+    el("main", { clase: "flujo", id: "contenido", tabindex: "-1" }, pantallas),
     vista.pie(p),
-    vista.barraMovil(),
-    fondo,
     notificacion,
   );
   app.removeAttribute("aria-busy");
 
-  fijarPaso(pasoActual, false);
+  let actual = 0;
+  const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (p.estado === "cerrado") {
-    document.body.classList.add("cerrado");
-    avisos.append(aviso("aviso--aviso", "lock", "Esta validación ya cerró.", "La recepción de certificados terminó. Si necesita enviar el suyo, comuníquese con el investigador."));
+  function ir(n, { historial = true, desplazar = true, enfocar = true } = {}) {
+    actual = Math.max(0, Math.min(pantallas.length - 1, n));
+    pantallas.forEach((pn, i) => { pn.hidden = i !== actual; });
+    for (const aviso of $$(".navegacion__aviso")) aviso.hidden = true;
+    const hash = actual ? `#p${actual}` : location.pathname + location.search;
+    if (historial) history.pushState({ pantalla: actual }, "", hash);
+    else history.replaceState({ pantalla: actual }, "", hash);
+    if (desplazar) window.scrollTo({ top: 0, behavior: "auto" });
+    if (enfocar) pantallas[actual].querySelector(".pantalla__titulo")?.focus({ preventScroll: true });
   }
-  if (claveDesconocida) {
-    avisos.append(aviso("aviso--aviso", "alert", "No reconocimos su enlace personal.", "Puede completar la validación igualmente: escriba sus datos en el paso 4."));
+
+  // Lleva a la pantalla que contiene un elemento (se usa al señalar lo que falta).
+  mostrarPantallaDe = id => {
+    const nodo = document.getElementById(id);
+    const idx = pantallas.findIndex(pn => pn.contains(nodo));
+    if (idx >= 0 && idx !== actual) ir(idx, { desplazar: false, enfocar: false });
+  };
+
+  const faltantesEn = pantalla => estado.pendientes().filter(x => pantalla.contains(document.getElementById(x.id)));
+  const primeraPendiente = () => {
+    const x = estado.siguientePendiente();
+    if (!x) return pantallas.length - 1;
+    const idx = pantallas.findIndex(pn => pn.contains(document.getElementById(x.id)));
+    return idx > 0 ? idx : 1;
+  };
+
+  function avanzar() {
+    const pantalla = pantallas[actual];
+    const faltan = faltantesEn(pantalla);
+    if (!faltan.length) { ir(actual + 1); return; }
+    for (const x of faltan) {
+      const nodo = document.getElementById(x.id);
+      if (nodo?.matches(".item, .suficiencia, .opciones-tarjeta")) nodo.classList.add("falta");
+    }
+    const aviso = pantalla.querySelector(".navegacion__aviso");
+    const items = faltan.filter(x => x.id.startsWith("item-")).length;
+    const otras = faltan.length - items;
+    aviso.textContent = [
+      items ? `Falta responder ${items === 1 ? "1 pregunta" : `${items} preguntas`}` : "",
+      otras ? (faltan[faltan.length - 1].id.startsWith("suficiencia") ? "la pregunta final de esta parte" : "elegir una opción") : "",
+    ].filter(Boolean).join(" y ") + ". Las marcamos en color.";
+    aviso.hidden = false;
+    irA(faltan[0].id);
   }
-  mostrarRestauracion(p, estado, avisos);
+
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-nav]");
+    if (!b) return;
+    const accion = b.dataset.nav;
+    if (accion === "empezar") ir(estado.avance().hechas ? primeraPendiente() : 1);
+    else if (accion === "siguiente") avanzar();
+    else if (accion === "anterior") ir(actual - 1);
+  });
+  window.addEventListener("popstate", e => ir(e.state?.pantalla ?? 0, { historial: false }));
+  $(".marca")?.addEventListener("click", e => { e.preventDefault(); ir(0); });
 
   const refrescar = () => {
-    evaluacion.refrescar();
-    valoracion.refrescar();
-    actualizarProgreso(p, estado);
-    const { hechas, total } = estado.avance();
-    pasoBarra.actualizar(pasoActual, {
-      hechas,
-      total,
-      aplicabilidad: !!estado.datos.aplicabilidad,
-      firmaValida: !estado.pendientes().length,
-    });
+    revisiones.forEach(r => r.refrescar());
+    inicio.boton.firstChild.textContent = estado.avance().hechas ? "Continuar donde lo dejé" : "Empezar la revisión";
   };
   estado.alCambiar(evento => {
     if (evento.tipo === "cambio") refrescar();
@@ -246,20 +232,18 @@ function montar(p, experto, estado, { claveDesconocida }) {
   });
   refrescar();
 
-  // Escuchar clics en botones con data-ir-paso
-  document.addEventListener("click", e => {
-    const btn = e.target.closest("[data-ir-paso]");
-    if (btn) {
-      const pNum = parseInt(btn.dataset.irPaso, 10);
-      if (pNum >= 1 && pNum <= 4) {
-        fijarPaso(pNum, true);
-      }
-    }
-  });
+  if (p.estado === "cerrado") {
+    document.body.classList.add("cerrado");
+    avisos.append(aviso("aviso--aviso", "lock", "Esta validación ya cerró.", "Si necesita enviar su certificado, comuníquese con el investigador."));
+  }
+  if (claveDesconocida) {
+    avisos.append(aviso("aviso--aviso", "alert", "No reconocimos su enlace.", "Puede continuar igual; al final escribirá sus datos."));
+  }
+  mostrarRestauracion(p, estado, avisos);
 
-  conectarIndice(indice, fondo, fijarPaso);
-  conectarSeguimiento(p, fijarPaso);
-  conectarSiguiente(estado, fijarPaso);
+  const inicial = /^#p(\d+)$/.exec(location.hash);
+  ir(inicial ? Number(inicial[1]) : 0, { historial: false, enfocar: false });
+
   conectarFirma(p, experto, estado, firma, notificacion);
 }
 
@@ -272,7 +256,6 @@ function mostrarRestauracion(p, estado, avisos) {
   if (!r) return;
   const { porcentaje, hechas } = estado.avance();
   if (!hechas && !estado.datos.firma) return;
-  const cuando = r.fecha ? `${r.fecha.toLocaleDateString("es-PE")} a las ${horaCorta(r.fecha)}` : "su última visita";
   const boton = el("button", { type: "button", clase: "boton-enlace", style: "padding:0" }, [icono("refresh"), "Empezar de nuevo"]);
   let confirmar = false;
   boton.addEventListener("click", () => {
@@ -284,15 +267,16 @@ function mostrarRestauracion(p, estado, avisos) {
       return;
     }
     estado.reiniciar();
-    location.reload();
+    location.href = location.pathname + location.search;
   });
-  const texto = `Retomamos lo que avanzó el ${cuando} (${porcentaje} %).${r.descartados ? ` ${r.descartados} ${r.descartados === 1 ? "ítem cambió" : "ítems cambiaron"} desde entonces y debe${r.descartados === 1 ? "" : "n"} evaluarse de nuevo.` : ""}`;
+  const texto = `Lleva ${porcentaje} % avanzado.${r.descartados ? ` ${r.descartados} ${r.descartados === 1 ? "pregunta cambió" : "preguntas cambiaron"} y debe${r.descartados === 1 ? "" : "n"} responderse de nuevo.` : ""}`;
   avisos.append(aviso("aviso--acento", "check-circle", "Bienvenido de nuevo.", texto, el("div", { style: "margin-top:6px" }, boton)));
 }
 
 let temporizadorGuardado;
 function indicarGuardado(ok) {
   const nodo = $("#indicador-guardado");
+  if (!nodo) return;
   nodo.hidden = false;
   nodo.style.color = ok ? "" : "var(--aviso)";
   nodo.querySelector("span").textContent = ok ? "Guardado" : "Sin guardar en este dispositivo";
@@ -300,104 +284,21 @@ function indicarGuardado(ok) {
   if (ok) temporizadorGuardado = setTimeout(() => { nodo.hidden = true; }, 2200);
 }
 
-function actualizarProgreso(p, estado) {
-  const { hechas, total, porcentaje } = estado.avance();
-  const texto = `${hechas} de ${total} respuestas`;
-  $("#barra-relleno").style.width = `${porcentaje}%`;
-  $("#pildora-progreso").hidden = false;
-  $("#pildora-valor").textContent = `${porcentaje} %`;
-  $("#barra-movil-relleno").style.width = `${porcentaje}%`;
-  const anillo = $(".anillo");
-  anillo.style.setProperty("--p", porcentaje);
-  anillo.querySelector("span").textContent = `${porcentaje} %`;
-  $("#indice-texto-avance").textContent = texto;
-
-  const faltan = estado.pendientes();
-  const faltanItems = faltan.filter(f => f.grupo === "items").length;
-  $("#barra-movil-texto").textContent = faltanItems ? `${texto} · faltan ${faltanItems}` : faltan.length ? "Ítems completos · falta firmar" : "Todo listo para generar el certificado";
-  const boton = $("#barra-movil-boton");
-  boton.firstChild.textContent = faltanItems ? "Siguiente" : faltan.length ? "Completar" : "Generar PDF";
-
-  for (const d of p.dimensiones) {
-    const enlace = $(`.indice a[data-dimension="${d.numero}"]`);
-    const hechos = d.items.filter(it => estado.itemCompleto(it)).length;
-    enlace.querySelector(".indice__cuenta").textContent = `${hechos}/${d.items.length}`;
-    enlace.classList.toggle("completo", estado.dimensionCompleta(d));
-  }
-  $('.indice a[data-seccion="evaluacion"]').classList.toggle("completo", p.dimensiones.every(d => estado.dimensionCompleta(d)));
-  $('.indice a[data-seccion="valoracion"]').classList.toggle("completo", !!estado.datos.aplicabilidad);
-  $('.indice a[data-seccion="firma-envio"]').classList.toggle("completo", !faltan.length);
-}
-
-/* ------------------------------------------------------------ Navegación */
-function conectarIndice(indice, fondo, fijarPaso) {
-  const abrir = $("#abrir-indice");
-  const pantallaChica = () => window.matchMedia("(max-width: 1079px)").matches;
-  const fijar = abierto => {
-    indice.classList.toggle("abierto", abierto);
-    fondo.classList.toggle("abierto", abierto);
-    abrir.setAttribute("aria-expanded", String(abierto));
-    document.body.style.overflow = abierto ? "hidden" : "";
-    if (abierto) indice.querySelector("a, button")?.focus();
-  };
-  abrir.addEventListener("click", () => fijar(true));
-  fondo.addEventListener("click", () => fijar(false));
-  indice.addEventListener("click", e => {
-    const a = e.target.closest("a");
-    if (a) {
-      const sec = a.dataset.seccion;
-      const dim = a.dataset.dimension;
-      if (sec === "expediente") fijarPaso(1, true);
-      else if (sec === "evaluacion" || dim) {
-        fijarPaso(2, false);
-        if (dim) setTimeout(() => irA(`dimension-${dim}`), 60);
-      } else if (sec === "valoracion") fijarPaso(3, true);
-      else if (sec === "firma-envio") fijarPaso(4, true);
-    }
-    if (e.target.closest("[data-cerrar-indice]") || (e.target.closest("a, [data-siguiente]") && pantallaChica())) fijar(false);
-  });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && indice.classList.contains("abierto")) { fijar(false); abrir.focus(); } });
-}
-
-/** Resalta en el índice la sección visible y oculta la barra inferior en portada. */
-function conectarSeguimiento(p) {
-  const barra = $("#barra-movil");
-  const portada = $("#inicio");
-  new IntersectionObserver(([e]) => barra.classList.toggle("oculta", e.isIntersecting), { threshold: 0.35 }).observe(portada);
-}
-
 function irA(id) {
-  const nodo = document.getElementById(id);
-  if (!nodo) return;
-  nodo.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
-  if (nodo.classList.contains("item") || nodo.classList.contains("suficiencia")) {
-    nodo.classList.remove("resaltado");
-    void nodo.offsetWidth;
-    nodo.classList.add("resaltado");
-    setTimeout(() => nodo.querySelector("input")?.focus({ preventScroll: true }), 450);
-  } else if (/^campo-/.test(id)) {
-    setTimeout(() => nodo.focus({ preventScroll: true }), 450);
-  }
-}
-
-function conectarSiguiente(estado, fijarPaso) {
-  document.addEventListener("click", e => {
-    if (!e.target.closest("[data-siguiente]")) return;
-    const siguiente = estado.siguientePendiente();
-    if (siguiente) {
-      if (siguiente.grupo === "items" || siguiente.grupo === "suficiencia") {
-        fijarPaso(2, false);
-      } else if (siguiente.grupo === "aplicabilidad") {
-        fijarPaso(3, false);
-      } else {
-        fijarPaso(4, false);
-      }
-      setTimeout(() => irA(siguiente.id), 80);
-    } else {
-      fijarPaso(4, false);
-      setTimeout(() => { irA("generar"); $("#generar")?.focus({ preventScroll: true }); }, 80);
+  mostrarPantallaDe?.(id);
+  setTimeout(() => {
+    const nodo = document.getElementById(id);
+    if (!nodo) return;
+    nodo.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+    if (nodo.classList.contains("item") || nodo.classList.contains("suficiencia")) {
+      nodo.classList.remove("resaltado");
+      void nodo.offsetWidth;
+      nodo.classList.add("resaltado");
+      setTimeout(() => nodo.querySelector("input")?.focus({ preventScroll: true }), 450);
+    } else if (/^campo-/.test(id)) {
+      setTimeout(() => nodo.focus({ preventScroll: true }), 450);
     }
-  });
+  }, 60);
 }
 
 /* ------------------------------------------------------- Firma y PDF */
@@ -444,7 +345,7 @@ function conectarFirma(p, experto, estado, f, notificacion) {
       f.error.hidden = false;
     } finally {
       f.generar.disabled = false;
-      f.generar.lastChild.textContent = "Generar certificado firmado (PDF)";
+      f.generar.lastChild.textContent = "Generar mi certificado (PDF)";
     }
   });
 }

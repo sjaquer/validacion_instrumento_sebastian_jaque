@@ -31,11 +31,11 @@
     "correo": "sjaquer@outlook.es"
   },
   "carta": {
-    "asunto": "Invitación a validación de instrumento de investigación por juicio de expertos",
+    "asunto": "Validación del cuestionario de mi tesis por juicio de expertos",
     "parrafos": [
-      "Estimado(a) docente: Es muy grato saludarle. Me dirijo a usted para solicitar su valioso juicio profesional como experto(a) en la validación del cuestionario correspondiente a mi tesis: *\"Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026\"*.",
-      "Considerando su destacada trayectoria en {area}, su evaluación de los 24 ítems bajo los criterios de **pertinencia, relevancia y claridad** asegurará el rigor metodológico del estudio. Puede revisar las variables, matriz y cuestionario en las pestañas superiores de este expediente.",
-      "Agradezco de antemano el valioso tiempo que dispense a esta colaboración académica."
+      "Es muy grato saludarle. Le escribo para solicitar su juicio profesional en la validación del cuestionario de mi tesis *\"Impacto de la inteligencia artificial generativa en la productividad laboral en personal de agencias de marketing digital en Lima, 2026\"*, con la que optaré el título de Licenciado en Administración y Negocios Internacionales.",
+      "Su revisión de las 24 preguntas según su **pertinencia, relevancia y claridad** será fundamental para asegurar la calidad del estudio.",
+      "Agradezco de antemano el tiempo que dedique a esta colaboración."
     ],
     "cierre": "Con sentimientos de consideración y estima académica,",
     "firma": "Sebastián Emiliano Jaque Reategui"
@@ -597,30 +597,21 @@
       "grado": "Mg.",
       "nombre": "Sandro Antonio Vidaurrázaga Sferrazza",
       "tratamiento": "Estimado",
-      "rol": "Validador Metodólogo",
-      "area": "investigación de mercados y métodos cuantitativos",
-      "especialidad": "Investigación de mercados y métodos cuantitativos. Maestro en Docencia Universitaria (UCV).",
-      "foco": "Coherencia de los 24 ítems con los objetivos e hipótesis, pertinencia de la escala Likert y suficiencia de la matriz."
+      "especialidad": "Investigación de mercados y métodos cuantitativos"
     },
     {
       "clave": "pinedo",
       "grado": "Mg.",
       "nombre": "Lloy Pinedo",
       "tratamiento": "Estimado",
-      "rol": "Experto temático en TI e Inteligencia Artificial",
-      "area": "tecnologías de la información e inteligencia artificial",
-      "especialidad": "Tecnologías de la información e IA. Maestro en Ciencias con mención en TI (UNSM), Dr. (c) en TIC, investigador RENACYT nivel II y docente investigador en la UPNW.",
-      "foco": "Ítems de la Variable 1 (Frecuencia de uso y Nivel de dominio técnico de herramientas de IA generativa)."
+      "especialidad": "Tecnologías de la información e inteligencia artificial"
     },
     {
       "clave": "cardenas",
       "grado": "Mg.",
       "nombre": "Ivette Cárdenas Marquina",
       "tratamiento": "Estimada",
-      "rol": "Experta temática en Talento Humano y Marketing",
-      "area": "gestión del talento humano y marketing",
-      "especialidad": "Gestión del talento humano y marketing. MBA CENTRUM PUCP, doctorado en RR. HH. en curso (Universidad de Lisboa). Gerente de Estrategia en ADSCreativa y exdirectora de Desarrollo Profesional y Alumni en la UPNW.",
-      "foco": "Ítems de la Variable 2 (Productividad laboral: eficiencia operativa y calidad de los entregables en agencias)."
+      "especialidad": "Gestión del talento humano y marketing"
     }
   ]
 }
